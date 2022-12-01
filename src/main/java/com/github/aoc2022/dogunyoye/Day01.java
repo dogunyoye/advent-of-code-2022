@@ -13,7 +13,7 @@ public class Day01 {
     public static class Elf {
         private int calories;
 
-        Elf() {
+        public Elf() {
             this.calories = 0;
         }
 
@@ -28,6 +28,7 @@ public class Day01 {
 
     static List<Elf> getElfCalories(List<String> allCalories) {
         final List<Elf> elves = new ArrayList<>();
+
         Elf e = new Elf();
         for (String line : allCalories) {
             if (line.isEmpty()) {
@@ -50,7 +51,7 @@ public class Day01 {
         return elves.get(0).getCalories();
     }
 
-    public static int findTopThreeCalories(List<Elf> elves) {
+    public static int sumTopThreeCalories(List<Elf> elves) {
         return elves.stream().limit(3).map(Elf::getCalories).collect(Collectors.summingInt(Integer::intValue));
     }
     
@@ -59,6 +60,6 @@ public class Day01 {
         final List<Elf> elfCalories = getElfCalories(allCalories);
 
         System.out.println("Part 1: " + findMaxCalories(elfCalories));
-        System.out.println("Part 2: " + findTopThreeCalories(elfCalories));
+        System.out.println("Part 2: " + sumTopThreeCalories(elfCalories));
     }
 }

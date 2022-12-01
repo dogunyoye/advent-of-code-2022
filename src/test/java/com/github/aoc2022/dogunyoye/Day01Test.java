@@ -29,6 +29,6 @@ public class Day01Test {
 
     @Test
     public void testPartTwo() throws IOException {
-        assertEquals(45000, Day01.findTopThreeCalories(elfCalories));
+        assertEquals(45000, Day01.sumTopThreeCalories(elfCalories));
     }
 }
