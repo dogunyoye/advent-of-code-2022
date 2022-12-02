@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Day01 {
 
@@ -52,7 +51,7 @@ public class Day01 {
     }
 
     public static int sumTopThreeCalories(List<Elf> elves) {
-        return elves.stream().limit(3).map(Elf::getCalories).collect(Collectors.summingInt(Integer::intValue));
+        return elves.get(0).getCalories() + elves.get(1).getCalories() + elves.get(2).getCalories();
     }
     
     public static void main(String[] args) throws IOException {
