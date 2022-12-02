@@ -1,4 +1,4 @@
-package com;
+package com.github.aoc2022.dogunyoye;
 
 import java.io.IOException;
 import java.nio.file.Files;

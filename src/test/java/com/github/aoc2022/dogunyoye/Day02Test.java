@@ -10,8 +10,6 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.Day02;
-
 public class Day02Test {
 
     private static List<String> game;
