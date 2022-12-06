@@ -34,15 +34,20 @@ public class Day05 {
         @Override
         public void move(List<Cargo> cargos, List<Instruction> instructions) {
             for (final Instruction ins : instructions) {
-                for (int i = 0; i < ins.numToMove; i++) {
+                final int numberToRemove = ins.numToMove;
+                for (int i = 0; i < numberToRemove; i++) {
                     final Cargo src = cargos.get(ins.srcCargo-1);
                     final Cargo dst = cargos.get(ins.dstCargo-1);
     
-                    final List<Character> crates = src.removeMultiple(ins.numToMove);
-                    Collections.reverse(crates);
-                    dst.addMultiple(crates);
+                    final char[] crates = new char[numberToRemove];
+                    for (int j = 0; j < numberToRemove; j++) {
+                        crates[j] = src.remove();
+                    }
+                    for (int k = crates.length-1; k >= 0; k--) {
+                        dst.add(crates[k]);
+                    }
     
-                    if (ins.numToMove > 1) {
+                    if (numberToRemove > 1) {
                         break;
                     }
                 }
@@ -61,23 +66,8 @@ public class Day05 {
             this.stack.push(item);
         }
 
-        void addMultiple(List<Character> items) {
-            for (final char c : items) {
-                this.stack.push(c);
-            }            
-        }
-
         char remove() {
             return this.stack.pop();
-        }
-
-        List<Character> removeMultiple(int toRemove) {
-            final List<Character> removed = new ArrayList<>();
-            for (int i = 0; i < toRemove; i++) {
-                removed.add(this.stack.pop());
-            }
-
-            return removed;
         }
 
         char inspect() {
