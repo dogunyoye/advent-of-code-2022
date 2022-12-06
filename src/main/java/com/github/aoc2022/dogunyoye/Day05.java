@@ -91,19 +91,19 @@ public class Day05 {
         }
     }
 
-    private static Map<Integer, Integer> indexToCrateId;
+    private static Map<Integer, Integer> indexToCargoId;
 
     static {
-        indexToCrateId = new HashMap<>();
-        indexToCrateId.put(1, 1);
-        indexToCrateId.put(5, 2);
-        indexToCrateId.put(9, 3);
-        indexToCrateId.put(13, 4);
-        indexToCrateId.put(17, 5);
-        indexToCrateId.put(21, 6);
-        indexToCrateId.put(25, 7);
-        indexToCrateId.put(29, 8);
-        indexToCrateId.put(33, 9);
+        indexToCargoId = new HashMap<>();
+        indexToCargoId.put(1, 1);
+        indexToCargoId.put(5, 2);
+        indexToCargoId.put(9, 3);
+        indexToCargoId.put(13, 4);
+        indexToCargoId.put(17, 5);
+        indexToCargoId.put(21, 6);
+        indexToCargoId.put(25, 7);
+        indexToCargoId.put(29, 8);
+        indexToCargoId.put(33, 9);
     }
 
     static String findTopItems(CrateMover mover, List<Cargo> cargos, List<Instruction> instructions) {
@@ -143,7 +143,7 @@ public class Day05 {
 
             for (int i = 0; i < line.length(); i++) {
                 if (Character.isLetter(line.charAt(i))) {
-                    final int crateId = indexToCrateId.get(i);
+                    final int crateId = indexToCargoId.get(i);
                     cargos.get(crateId-1).add(line.charAt(i));
                 }
             }
