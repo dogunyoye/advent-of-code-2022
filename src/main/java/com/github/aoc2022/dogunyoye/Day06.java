@@ -36,16 +36,14 @@ public class Day06 {
 
             for (int i = 0; i < chars.length-13; i++) {
                 uniqueChars.add(chars[i]);
-                boolean found = true;
+
                 for (int j = 1; j < 14; j++) {
-                    final boolean notSeen = uniqueChars.add(chars[i+j]);
-                    if (!notSeen) {
-                        found = false;
+                    if (!uniqueChars.add(chars[i+j])) {
                         break;
                     }
                 }
 
-                if (found) {
+                if (uniqueChars.size() == 14) {
                     return i+14;
                 }
 
