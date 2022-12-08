@@ -116,29 +116,22 @@ public class Day07 {
             this.parent = parent;
         }
 
-        private int recurseDirectory(Directory directory) {
-            int result = 0;
+        private int getSize(Directory directory) {
+            int size = 0;
 
             for (File f : directory.files) {
-                result += f.size;
+                size += f.size;
             }
 
             for (Directory d : directory.directories) {
-                result += recurseDirectory(d);
+                size += getSize(d);
             }
 
-            return result;
+            return size;
         }
 
         int getSize() {
-            for (File f : this.files) {
-                this.size += f.size;
-            }
-
-            for (Directory d : this.directories) {
-                this.size += recurseDirectory(d);
-            }
-
+            this.size = getSize(this);
             return this.size;
         }
 
@@ -219,49 +212,52 @@ public class Day07 {
             String[] parts = output.next().split(" ");
             final String command = parts[1];
 
-            if (command.equals("ls")) {
-                String next = output.next();
+            switch(command) {
+                case "ls":
+                    String next = output.next();
+                    while (next != null && !next.startsWith("$")) {
+                        parts = next.split(" ");
+                        final String name = parts[1];
 
-                while (next != null && !next.startsWith("$")) {
-                    parts = next.split(" ");
-                    final String name = parts[1];
+                        if (isDirectory(next)) {
+                            final Directory d = new Directory(name);
+                            d.setParent(currentDir);
 
-                    if (isDirectory(next)) {
-                        final Directory d = new Directory(name);
-                        d.setParent(currentDir);
-
-                        if (!fileSystem.contains(d)) {
-                            fileSystem.add(d);
-                            currentDir.addDirectory(d);
+                            if (!fileSystem.contains(d)) {
+                                fileSystem.add(d);
+                                currentDir.addDirectory(d);
+                            }
+                        } else {
+                            final File f = new File(name, Integer.parseInt(parts[0]));
+                            currentDir.addFile(f);
                         }
-                    } else {
-                        final File f = new File(name, Integer.parseInt(parts[0]));
-                        currentDir.addFile(f);
+
+                        next = output.hasNext() ? output.next() : null;
+                        if (next == null) {
+                            // end of output
+                            return;
+                        }
                     }
 
-                    next = output.hasNext() ? output.next() : null;
-                    if (next == null) {
-                        // end of output
+                    final String dirName = next.split(" ")[2];
+                    if (dirName.equals("..")) {
                         return;
                     }
-                }
-
-                final String dirName = next.split(" ")[2];
-                if (dirName.equals("..")) {
-                    return;
-                }
+                    
+                    parseCommandsAndOutput(output, currentDir.getDirectory(dirName));
+                    break;
                 
-                parseCommandsAndOutput(output, currentDir.getDirectory(dirName));
-    
+                case "cd":
+                    final String dName = parts[2];
+                    if (dName.equals("..")) {
+                        return;
+                    }
 
-            } else if (command.equals("cd")) {
-                final String dirName = parts[2];
-                if (dirName.equals("..")) {
-                    return;
-                }
+                    parseCommandsAndOutput(output, currentDir.getDirectory(dName));
+                    break;
 
-                parseCommandsAndOutput(output, currentDir.getDirectory(dirName));
-      
+                default:
+                    throw new RuntimeException("Unknown command: " + command);
             }
         }
     }
@@ -279,7 +275,6 @@ public class Day07 {
     }
 
     static int findSmallestDirectoryToDelete(Directory root) {
-
         final int remaining = TOTAL_SPACE - root.size;
         final int toClear = SPACE_NEEDED - remaining;
 
