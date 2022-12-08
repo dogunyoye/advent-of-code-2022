@@ -15,8 +15,8 @@ public class Day07 {
     private static final int SPACE_NEEDED = 30000000;
     
     static class File {
-        private String name;
-        private int size;
+        private final String name;
+        private final int size;
 
         File(String name, int size) {
             this.name = name;
@@ -74,10 +74,10 @@ public class Day07 {
     }
 
     static class Directory {
-        private String name;
+        private final String name;
         private Directory parent;
-        private Set<Directory> directories;
-        private Set<File> files;
+        private final Set<Directory> directories;
+        private final Set<File> files;
         private int size;
 
         Directory(String name) {
@@ -105,7 +105,7 @@ public class Day07 {
                 }
             }
 
-            throw new RuntimeException("Directory of name: " + name + " does not exist");
+            throw new RuntimeException("Directory of name: '" + name + "' does not exist");
         }
 
         void addFile(File f) {
@@ -222,11 +222,8 @@ public class Day07 {
                         if (isDirectory(next)) {
                             final Directory d = new Directory(name);
                             d.setParent(currentDir);
-
-                            if (!fileSystem.contains(d)) {
-                                fileSystem.add(d);
-                                currentDir.addDirectory(d);
-                            }
+                            fileSystem.add(d);
+                            currentDir.addDirectory(d);
                         } else {
                             final File f = new File(name, Integer.parseInt(parts[0]));
                             currentDir.addFile(f);
@@ -277,7 +274,6 @@ public class Day07 {
     static int findSmallestDirectoryToDelete(Directory root) {
         final int remaining = TOTAL_SPACE - root.size;
         final int toClear = SPACE_NEEDED - remaining;
-
         int smallest = Integer.MAX_VALUE;
         for (Directory d : fileSystem) {
             if (d.size >= toClear) {
@@ -291,10 +287,8 @@ public class Day07 {
     static void traverseFileSystem(List<String> output, Directory root) {
         fileSystem.add(root);
         final Iterator<String> iter = output.iterator();
-
         // skip first command
         iter.next();
-    
         parseCommandsAndOutput(iter, root);
     }
 
