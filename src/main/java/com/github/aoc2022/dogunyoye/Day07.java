@@ -224,7 +224,7 @@ public class Day07 {
 
                 while (next != null && !next.startsWith("$")) {
                     parts = next.split(" ");
-                    String name = parts[1];
+                    final String name = parts[1];
 
                     if (isDirectory(next)) {
                         final Directory d = new Directory(name);
@@ -240,27 +240,28 @@ public class Day07 {
                     }
 
                     next = output.hasNext() ? output.next() : null;
-                }
-
-                // end of our output
-                if (!output.hasNext()) {
-                    break;
+                    if (next == null) {
+                        // end of output
+                        return;
+                    }
                 }
 
                 final String dirName = next.split(" ")[2];
                 if (dirName.equals("..")) {
                     return;
-                } else {
-                    parseCommandsAndOutput(output, currentDir.getDirectory(dirName));
                 }
+                
+                parseCommandsAndOutput(output, currentDir.getDirectory(dirName));
+    
 
             } else if (command.equals("cd")) {
                 final String dirName = parts[2];
                 if (dirName.equals("..")) {
                     return;
-                } else {
-                    parseCommandsAndOutput(output, currentDir.getDirectory(dirName));
                 }
+
+                parseCommandsAndOutput(output, currentDir.getDirectory(dirName));
+      
             }
         }
     }
