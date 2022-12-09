@@ -202,11 +202,11 @@ public class Day07 {
         }
     }
 
-    static boolean isDirectory(String o) {
+    private static boolean isDirectory(String o) {
         return o.startsWith("dir");
     }
 
-    static void parseCommandsAndOutput(Iterator<String> output, Directory currentDir) {
+    private static void parseCommandsAndOutput(Iterator<String> output, Directory currentDir) {
 
         while (output.hasNext()) {
             String[] parts = output.next().split(" ");
@@ -259,7 +259,7 @@ public class Day07 {
         }
     }
 
-    static int findSumOfDirectoriesLessThan100000() {
+    public static int findSumOfDirectoriesLessThan100000() {
         int sum = 0;
         for (Directory d : fileSystem) {
             int size = d.getSize();
@@ -271,7 +271,7 @@ public class Day07 {
         return sum;
     }
 
-    static int findSmallestDirectoryToDelete(Directory root) {
+    public static int findSmallestDirectoryToDelete(Directory root) {
         final int remaining = TOTAL_SPACE - root.size;
         final int toClear = SPACE_NEEDED - remaining;
         int smallest = Integer.MAX_VALUE;
