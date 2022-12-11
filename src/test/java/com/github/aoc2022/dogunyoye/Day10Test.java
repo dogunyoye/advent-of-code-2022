@@ -34,5 +34,6 @@ public class Day10Test {
     public void testPartTwo() throws IOException {
         // visualisation question
         assertTrue(true);
+        Day10.printCRTImage(cpu);
     }
 }
