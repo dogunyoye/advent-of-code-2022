@@ -166,13 +166,13 @@ public class Day11 {
     }
 
     public static void main(String[] args) {
-        final Monkey[] monkeys = createMonkeys();
+        Monkey[] monkeys = createMonkeys();
         playKeepAway(monkeys, 20);
         System.out.println("Part 1: " + mostActiveTwoMonkeys(monkeys));
 
-        final Monkey[] monkeys2 = createMonkeys();
+        monkeys = createMonkeys();
         final long lcm = lcm(new long[]{2, 7, 3, 17, 11, 19, 5, 13});
-        playKeepAwayModified(monkeys2, lcm, 10000);
-        System.out.println("Part 2: " + mostActiveTwoMonkeys(monkeys2));
+        playKeepAwayModified(monkeys, lcm, 10000);
+        System.out.println("Part 2: " + mostActiveTwoMonkeys(monkeys));
     }
 }
