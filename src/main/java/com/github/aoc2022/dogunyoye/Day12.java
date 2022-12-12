@@ -118,11 +118,9 @@ public class Day12 {
                     break;
             }
 
-            if (map[x][y] > map[c.x][c.y] + 1) {
-                continue;
+            if (map[x][y] <= map[c.x][c.y] + 1) {
+                neighbours.add(new Node(x, y));
             }
-
-            neighbours.add(new Node(x, y));
         }
 
         return neighbours;
