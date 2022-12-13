@@ -3,12 +3,14 @@ package com.github.aoc2022.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
 
 public class Day12 {
 
@@ -24,26 +26,13 @@ public class Day12 {
         WEST
     }
 
-    static class NodeComparator implements Comparator<Node> {
-        @Override
-        public int compare(Node o1, Node o2) {
-            return Integer.compare(o1.cost, o2.cost);
-        }   
-    }
-
     private static class Node {
         final int x;
         final int y;
-        int cost;
 
         public Node(int x, int y) {
             this.x = x;
             this.y = y;
-            this.cost = 0;
-        }
-
-        public void setCost(int cost) {
-            this.cost = cost;
         }
 
         @Override
@@ -126,40 +115,26 @@ public class Day12 {
         return neighbours;
     }
 
-    private static int djikstra(int[][] map, Node startNode, int length, int depth) {
-        final PriorityQueue<Node> frontier = new PriorityQueue<>(length * depth, new NodeComparator());
-        startNode.setCost(0);
-        frontier.add(startNode);
-
-        final Map<Node, Integer> costSoFar = new HashMap<>();
+    private static int bfs(int[][] map, Node startNode, int length, int depth) {
+        final Queue<Node> queue = new ArrayDeque<>();
+        final Set<Node> explored = new HashSet<>();
         final Map<Node, Node> prevMap = new HashMap<>();
 
-        costSoFar.put(startNode, 0);
+        explored.add(startNode);
+        queue.add(startNode);
 
-        while (!frontier.isEmpty()) {
-            final Node current = frontier.remove();
-
-            if (current.equals(end)) {
+        while (!queue.isEmpty()) {
+            final Node v = queue.poll();
+            if (v.equals(end)) {
                 break;
             }
 
-            final int currentCost = current.cost;
-
-            if (currentCost <= costSoFar.get(current)) {
-                for (Node n : getNeighbours(map, current, length, depth)) {
-    
-                    final int w = map[n.x][n.y];
-                    final int newCost = currentCost + w;
-
-                    if (!costSoFar.containsKey(n) || newCost < costSoFar.get(n)) {
-                        costSoFar.put(n, newCost);
-    
-                        final Node node = new Node(n.x, n.y);
-                        prevMap.put(n, current);
-
-                        node.setCost(newCost);
-                        frontier.add(node);
-                    }
+            final List<Node> neighbours = getNeighbours(map, v, length, depth);
+            for (final Node n : neighbours) {
+                if (!explored.contains(n)) {
+                    explored.add(n);
+                    prevMap.put(n, v);
+                    queue.add(n);
                 }
             }
         }
@@ -205,21 +180,20 @@ public class Day12 {
     }
 
     public static int fewestStepsToBestSignalLocation(int[][] heightMap, int length, int depth) {
-        return djikstra(heightMap, start, length, depth);
+        return bfs(heightMap, start, length, depth);
     }
     
     public static int fewestStepsFromAtoBestSignalLocation(int[][] heightMap, int length, int depth) {
-        final List<Integer> steps = new ArrayList<>();
+        int result = Integer.MAX_VALUE;
         for (final Node n : aStartingPositions) {
             // 0 => no solution
-            final int result = djikstra(heightMap, n, length, depth);
-            if (result > 0) {
-                steps.add(result);
+            final int steps = bfs(heightMap, n, length, depth);
+            if (steps > 0) {
+                result = Math.min(result, steps);
             }
         }
 
-        steps.sort(Integer::compare);
-        return steps.get(0);
+        return result;
     }
     
     public static void main(String[] args) throws IOException {
