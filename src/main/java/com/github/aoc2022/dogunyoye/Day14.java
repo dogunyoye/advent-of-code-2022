@@ -26,6 +26,34 @@ public class Day14 {
         public String toString() {
             return "Point[X:" + this.x + ", Y:" + this.y + "]";
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + x;
+            result = prime * result + y;
+            result = prime * result + (outOfBounds ? 1231 : 1237);
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Point other = (Point) obj;
+            if (x != other.x)
+                return false;
+            if (y != other.y)
+                return false;
+            if (outOfBounds != other.outOfBounds)
+                return false;
+            return true;
+        }
     }
 
     private static int[] findMinMax(List<String> walls) {
@@ -104,7 +132,7 @@ public class Day14 {
         return wallMap;
     }
 
-    private static Point checkLeft(char[][] wallMap, int length, int depth, Point location) {
+    private static Point checkLeft(char[][] wallMap, int depth, Point location) {
         int x = location.x-1;
         int y = location.y+1;
 
@@ -121,7 +149,7 @@ public class Day14 {
         return new Point(x, y, true);
     }
 
-    private static Point checkRight(char[][] wallMap, int length, int depth, Point location) {
+    private static Point checkRight(char[][] wallMap, int depth, Point location) {
         int x = location.x+1;
         int y = location.y+1;
 
@@ -138,7 +166,7 @@ public class Day14 {
         return new Point(x, y, true);
     }
 
-    private static Point drop(char[][] wallMap, int depth, int length, Point dropPoint) {
+    private static Point drop(char[][] wallMap, int depth, Point dropPoint) {
 
         int x = dropPoint.x;
         int y = dropPoint.y;
@@ -162,22 +190,16 @@ public class Day14 {
 
         // check if I can go left
         // if so, recurse left
-        final Point left = checkLeft(wallMap, length, depth, rest);
+        final Point left = checkLeft(wallMap, depth, rest);
         if (!left.outOfBounds) {
-            rest = drop(wallMap, depth, length, left);
-            if (rest.outOfBounds) {
-                return rest;
-            }
+            rest = drop(wallMap, depth, left);
         }
 
         // check if I can go right
         // if so, recurse right
-        final Point right = checkRight(wallMap, length, depth, rest);
+        final Point right = checkRight(wallMap, depth, rest);
         if (!right.outOfBounds) {
-            rest = drop(wallMap, depth, length, right);
-            if (rest.outOfBounds) {
-                return rest;
-            }
+            rest = drop(wallMap, depth, right);
         }
 
         return rest;
@@ -189,10 +211,11 @@ public class Day14 {
 
         int count = 0;
         while (true) {
-            final Point restPoint = drop(wallMap, depth, length, dropPoint);
+            final Point restPoint = drop(wallMap, depth, dropPoint);
             // as soon as we've returned an out of bounds
             // rest point, we've overflown
             if (restPoint.outOfBounds) {
+                printMap(wallMap, depth, length);
                 break;
             }
             wallMap[restPoint.y][restPoint.x] = 'o';
@@ -217,7 +240,7 @@ public class Day14 {
 
         int count = 0;
         while (true) {
-            Point restPoint = drop(extendedWallMap, depth, length, dropPoint);
+            Point restPoint = drop(extendedWallMap, depth, dropPoint);
             // when we return a rest point which is
             // the same as the original drop point,
             // get out.
