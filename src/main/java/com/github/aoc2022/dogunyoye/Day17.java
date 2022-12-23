@@ -111,15 +111,15 @@ public class Day17 {
     }
 
     private static class RockSelector {
-        static int num = 1;
+        int num = 1;
 
-        static void reset() {
-            num = 1;
+        RockSelector() {
+            this.num = 1;
         }
 
-        static Rock select() {
+        Rock select() {
             final int toSelect = num % 5;
-            ++num;
+            ++this.num;
 
             switch(toSelect) {
                 case 1:
@@ -343,6 +343,12 @@ public class Day17 {
     public static long findGreatestHeightFromSimulatingFallingRocks(String commands, long rocksToDrop) {
 
         final List<Rock> settledRocks = new ArrayList<>();
+
+        // List containing deltas of previous heights
+        // i.e the gap between the current highest
+        // settled rock and the previous.
+        // This is useful for stepping through height
+        // increases per rock.
         List<Long> historyOfHeights = new ArrayList<>();
 
         long prev = 0;
@@ -355,21 +361,27 @@ public class Day17 {
         final long initial = rocksToDrop;
         final int length = commands.length();
 
-        RockSelector.reset();
+        final RockSelector rockSelector = new RockSelector();
 
     while (rocksToDrop != 0) {
-            final Rock rock = RockSelector.select();
+            final Rock rock = rockSelector.select();
             rock.moveUp(highestRockLevel);
 
             final State state = new State(rock.name, (idx % length));
             final List<Long> value = new ArrayList<>(List.of(rocksToDrop, highestRockLevel));
 
+            // To be confident we are in a cycle, we must ensure that
+            // we've iterated over all jet commands at least 3 times
             if (cycle.containsKey(state) && idx >= (3 * length)) {
                 final List<Long> existing = cycle.get(state);
 
                 final long interval = existing.get(0) - rocksToDrop;
+
+                // dx is the sum of a cycle
                 final long dx = Math.abs(highestRockLevel) - Math.abs(existing.get(1));
 
+                // result is initialised as the highest (latest)
+                // rock level we've observed.
                 long result = Math.abs(highestRockLevel);
                 final long startIdx = initial - dropped;
 
