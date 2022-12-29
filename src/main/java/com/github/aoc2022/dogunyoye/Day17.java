@@ -5,16 +5,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Day17 {
 
     public static final long PART_TWO_ROCKS = 1000000000000L;
 
     private static class State {
-        String shapeName;
-        int windDirectionIdx;
+        private String shapeName;
+        private int windDirectionIdx;
 
         State(String shapeName, int windDirectionIdx) {
             this.shapeName = shapeName;
@@ -86,23 +88,22 @@ public class Day17 {
     }
 
     private static class Cycle {
-        long num;
-        List<Long> values;
-        long[] arr;
+        private long num;
+        private long[] arr;
 
         Cycle(List<Long> diffs, int startIdx, int endIdx) {
             this.num = 0;
-            this.values = new ArrayList<>();
+            final List<Long> values = new ArrayList<>();
 
             for (int i = startIdx; i < endIdx; i++) {
-                this.values.add(diffs.get(i));
+                values.add(diffs.get(i));
             }
 
             this.arr = values.stream().mapToLong(i -> i).toArray();
         }
 
         long select() {
-            final long idx = num % values.size();
+            final long idx = num % arr.length;
             final long value = arr[(int)idx];
             num++;
 
@@ -111,7 +112,7 @@ public class Day17 {
     }
 
     private static class RockSelector {
-        int num = 1;
+        private int num = 1;
 
         RockSelector() {
             this.num = 1;
@@ -160,7 +161,7 @@ public class Day17 {
             this.body = newPosition;
         }
 
-        boolean moveLeft(List<Rock> settledRocks) {
+        boolean moveLeft(Set<Point> settledRocks) {
             final List<Point> newPositions = new ArrayList<>();
             for (final Point p : body) {
                 final int newY = p.y - 1;
@@ -182,7 +183,7 @@ public class Day17 {
             return true;
         }
 
-        boolean moveRight(List<Rock> settledRocks) {
+        boolean moveRight(Set<Point> settledRocks) {
             final List<Point> newPositions = new ArrayList<>();
             for (final Point p : body) {
                 final int newY = p.y + 1;
@@ -204,7 +205,7 @@ public class Day17 {
             return true;
         }
 
-        boolean moveDown(List<Rock> settledRocks) {
+        boolean moveDown(Set<Point> settledRocks) {
             final List<Point> newPositions = new ArrayList<>();
             for (final Point p : body) {
                 final int newX = p.x + 1;
@@ -228,28 +229,14 @@ public class Day17 {
     /**
      * Return true if the rock currently being moved clashes
      * with a settled rock.
-     * 
-     * TODO: Optimise heavily.
-     * Currently iterates over all settled rocks and compares
-     * positions for equality.
-     * Instead could store all occupied points in a hash set
-     * and check if `mp` is stored within it.
      *
-     * @param settled list of settled rocks
+     * @param settled set of points for each settled rock
      * @param mp the new point on the moving rock
-     * @return true if `mp` clashes with a settled rock.
+     * @return true if `mp` clashes with a settled rock point.
      * false otherwise.
      */
-    private static boolean rockClash(List<Rock> settled, Point mp) {
-        for (final Rock settledRock : settled) {
-            for (final Point p : settledRock.body) {
-                if (p.equals(mp)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+    private static boolean rockClash(Set<Point> settledRocks, Point mp) {
+        return settledRocks.contains(mp);
     }
 
     private static Rock createHorizontalRock() {
@@ -329,12 +316,10 @@ public class Day17 {
         return new Rock("square", body);
     }
 
-    private static int highestLevel(List<Rock> settledRocks) {
+    private static int highestLevel(Set<Point> settledRocks) {
         int max = Integer.MAX_VALUE;
-        for (final Rock r : settledRocks) {
-            for (final Point p : r.body) {
-                max = Math.min(max, p.x);
-            }
+        for (final Point p : settledRocks) {
+            max = Math.min(max, p.x);
         }
 
         return max - 1;
@@ -342,7 +327,7 @@ public class Day17 {
 
     public static long findGreatestHeightFromSimulatingFallingRocks(String commands, long rocksToDrop) {
 
-        final List<Rock> settledRocks = new ArrayList<>();
+        final Set<Point> settledRocks = new HashSet<>();
 
         // List containing deltas of previous heights
         // i.e the gap between the current highest
@@ -363,7 +348,7 @@ public class Day17 {
 
         final RockSelector rockSelector = new RockSelector();
 
-    while (rocksToDrop != 0) {
+        while (rocksToDrop != 0) {
             final Rock rock = rockSelector.select();
             rock.moveUp(highestRockLevel);
 
@@ -422,7 +407,7 @@ public class Day17 {
                 ++idx;
 
                 if (!rock.moveDown(settledRocks)) {
-                    settledRocks.add(rock);
+                    settledRocks.addAll(rock.body);
                     break;
                 }
             }
