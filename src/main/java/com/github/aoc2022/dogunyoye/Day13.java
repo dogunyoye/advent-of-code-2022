@@ -31,8 +31,8 @@ public class Day13 {
                 return Result.NO;
             }
 
-            Object l = left.get(i);
-            Object r = right.get(i);
+            final Object l = left.get(i);
+            final Object r = right.get(i);
 
             Result result = null;
 

@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class Day21 {
 
-    public enum Operation {
+    private enum Operation {
         ADD,
         SUBTRACT,
         MULTIPLY,

@@ -39,24 +39,14 @@ public class Day15 {
         }
     }
 
-    private static class Beacon {
-        Position pos;
-
-        Beacon(Position pos) {
-            this.pos = pos;
-        }
-    }
-
     static class Sensor {
-        Position pos;
-        Beacon beacon;
-        int manhattanDistance;
+        private Position pos;
+        private int manhattanDistance;
 
-        Sensor(Position pos, Beacon beacon) {
+        Sensor(Position pos, Position beaconPos) {
             this.pos = pos;
-            this.beacon = beacon;
             this.manhattanDistance =
-                Math.abs(pos.x - beacon.pos.x) + Math.abs(pos.y - beacon.pos.y);
+                Math.abs(pos.x - beaconPos.x) + Math.abs(pos.y - beaconPos.y);
         }
 
         Bound getBound(int y) {
@@ -87,7 +77,7 @@ public class Day15 {
             final int sy = Integer.parseInt(split[3].substring(2, split[3].length()));
             final int bx = Integer.parseInt(split[8].substring(2, split[8].length()));
             final int by = Integer.parseInt(split[9].substring(2, split[9].length()));
-            sensors.add(new Sensor(new Position(sx, sy), new Beacon(new Position(bx, by))));
+            sensors.add(new Sensor(new Position(sx, sy), new Position(bx, by)));
         }
 
         return sensors;
