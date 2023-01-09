@@ -72,27 +72,9 @@ public class Day18 {
             final int y = this.pos.y;
             final int z = this.pos.z;
 
-            if (otherPos.equals(new Position(x+1, y, z))) {
-                return true;
-            }
-
-            if (otherPos.equals(new Position(x-1, y, z))) {
-                return true;
-            }
-
-            if (otherPos.equals(new Position(x, y+1, z))) {
-                return true;
-            }
-
-            if (otherPos.equals(new Position(x, y-1, z))) {
-                return true;
-            }
-
-            if (otherPos.equals(new Position(x, y, z+1))) {
-                return true;
-            }
-
-            if (otherPos.equals(new Position(x, y, z-1))) {
+            if (otherPos.equals(new Position(x+1, y, z)) || otherPos.equals(new Position(x-1, y, z)) ||
+                otherPos.equals(new Position(x, y+1, z)) || otherPos.equals(new Position(x, y-1, z)) ||
+                otherPos.equals(new Position(x, y, z+1)) || otherPos.equals(new Position(x, y, z-1))) {
                 return true;
             }
 
@@ -102,7 +84,7 @@ public class Day18 {
 
     static List<Cube> createCubes(List<String> data) {
         final List<Cube> cubes = new ArrayList<>();
-        for (String line : data) {
+        for (final String line : data) {
             final String[] parts = line.split(",");
             final int x = Integer.parseInt(parts[0]);
             final int y = Integer.parseInt(parts[1]);
