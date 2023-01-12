@@ -91,23 +91,18 @@ public class Day17 {
         private long num;
         private long[] arr;
 
-        Cycle(List<Long> diffs, int startIdx, int endIdx) {
-            this.num = 0;
-            final List<Long> values = new ArrayList<>();
-
-            for (int i = startIdx; i < endIdx; i++) {
-                values.add(diffs.get(i));
+        Cycle(List<Long> diffs, int startIdx) {
+            this.arr = new long[diffs.size() - startIdx];
+            int idx = 0;
+            for (int i = startIdx; i < diffs.size(); i++) {
+                this.arr[idx++] = diffs.get(i);
             }
-
-            this.arr = values.stream().mapToLong(i -> i).toArray();
         }
 
         long select() {
             final long idx = num % arr.length;
-            final long value = arr[(int)idx];
-            num++;
-
-            return value;
+            ++num;
+            return arr[(int)idx];
         }
     }
 
@@ -370,7 +365,7 @@ public class Day17 {
                 long result = Math.abs(highestRockLevel);
                 final long startIdx = initial - dropped;
 
-                final Cycle c = new Cycle(historyOfHeights, (int)(initial - existing.get(0)), historyOfHeights.size());
+                final Cycle c = new Cycle(historyOfHeights, (int)(initial - existing.get(0)));
 
                 final long wholeCycles = startIdx / interval;
                 final long remainder = (startIdx % interval);
