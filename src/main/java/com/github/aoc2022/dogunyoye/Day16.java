@@ -16,99 +16,8 @@ public class Day16 {
     private static Map<String, Valve> nameToValveMap;
     private static Map<State, Integer> memo;
 
-    static class State {
-        String valveName;
-        Set<Valve> visited;
-        int timeLeft;
-        int numberOfPlayers;
-
-        State(String name, Set<Valve> visited, int timeLeft, int numberOfPlayers) {
-            this.valveName = name;
-            this.visited = visited;
-            this.timeLeft = timeLeft;
-            this.numberOfPlayers = numberOfPlayers;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((valveName == null) ? 0 : valveName.hashCode());
-            result = prime * result + ((visited == null) ? 0 : visited.hashCode());
-            result = prime * result + timeLeft;
-            result = prime * result + numberOfPlayers;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            State other = (State) obj;
-            if (valveName == null) {
-                if (other.valveName != null)
-                    return false;
-            } else if (!valveName.equals(other.valveName))
-                return false;
-            if (visited == null) {
-                if (other.visited != null)
-                    return false;
-            } else if (!visited.equals(other.visited))
-                return false;
-            if (timeLeft != other.timeLeft)
-                return false;
-            if (numberOfPlayers != other.numberOfPlayers)
-                return false;
-            return true;
-        }
-    }
-
-    static class Valve {
-        String name;
-        int flowRate;
-
-        Valve(String name, int flowRate) {
-            this.name = name;
-            this.flowRate = flowRate;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((name == null) ? 0 : name.hashCode());
-            result = prime * result + flowRate;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Valve other = (Valve) obj;
-            if (name == null) {
-                if (other.name != null)
-                    return false;
-            } else if (!name.equals(other.name))
-                return false;
-            if (flowRate != other.flowRate)
-                return false;
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "Valve:[" + this.name + ", " + this.flowRate + "]";
-        }
-    }
+    private static record State (String valveName, Set<Valve> visited, int timeLeft, int numberOfPlayers) { }
+    private static record Valve (String name, int flowRate) { }
 
     static Map<Valve, List<String>> parseValves(List<String> valves) {
         valvesMap = new HashMap<>();
@@ -152,10 +61,13 @@ public class Day16 {
 
         int result = 0;
         final Valve valve = nameToValveMap.get(currentValve);
-        if (!visited.contains(valve) && valve.flowRate > 0) {
+        final String valveName = valve.name();
+        final int flowRate = valve.flowRate();
+
+        if (!visited.contains(valve) && flowRate > 0) {
             final Set<Valve> newVisited = new HashSet<>(visited);
             newVisited.add(valve);
-            result = Math.max(result, ((timeLeft - 1) * valve.flowRate) + traverseValves(valve.name, newVisited, timeLeft - 1, numberOfPlayers));
+            result = Math.max(result, ((timeLeft - 1) * flowRate) + traverseValves(valveName, newVisited, timeLeft - 1, numberOfPlayers));
         }
 
         for (final String child : valvesMap.get(valve)) {

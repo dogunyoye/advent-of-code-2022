@@ -55,12 +55,7 @@ public class Day05 {
         }
     }
 
-    static class Cargo {
-        private Stack<Character> stack;
-
-        Cargo() {
-            this.stack = new Stack<>();
-        }
+    static record Cargo (Stack<Character> stack) {
 
         void add(char item) {
             this.stack.push(item);
@@ -79,17 +74,7 @@ public class Day05 {
         }
     }
 
-    static class Instruction {
-        private int numToMove;
-        private int srcCargo;
-        private int dstCargo;
-
-        Instruction(int numToMove, int src, int dst) {
-            this.numToMove = numToMove;
-            this.srcCargo = src;
-            this.dstCargo = dst;
-        }
-    }
+    static record Instruction (int numToMove, int srcCargo, int dstCargo) { }
 
     private static Map<Integer, Integer> indexToCargoId;
 
@@ -124,7 +109,7 @@ public class Day05 {
         int currIdx = 0;
 
         for (int i = 0; i < numberOfCargos; i++) {
-            cargos.add(new Cargo());
+            cargos.add(new Cargo(new Stack<Character>()));
         }
 
         for (final String line : cargoAndInstructions) {

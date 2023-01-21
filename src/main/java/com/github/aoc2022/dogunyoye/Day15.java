@@ -9,35 +9,8 @@ import java.util.List;
 
 public class Day15 {
 
-    private static class Bound {
-        long min;
-        long max;
-
-        Bound(long min, long max) {
-            this.min = min;
-            this.max = max;
-        }
-
-        @Override
-        public String toString() {
-            return "Bound:[min: " + this.min + ", max: " + this.max + "]";
-        }
-    }
-
-    private static class Position {
-        int x;
-        int y;
-
-        Position(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public String toString() {
-            return "Position:[X: " + this.x + ", Y: " + this.y + "]";
-        }
-    }
+    private static record Bound (long min, long max) { }
+    private static record Position (int x, int y) { }
 
     static class Sensor {
         private Position pos;
@@ -90,8 +63,8 @@ public class Day15 {
         for (final Sensor s : sensors) {
             final Bound bound = s.getBound(y);
             if (bound != null) {
-                min = Math.min(min, bound.min);
-                max = Math.max(max, bound.max);
+                min = Math.min(min, bound.min());
+                max = Math.max(max, bound.max());
             }
         }
 
@@ -100,7 +73,7 @@ public class Day15 {
 
     private static boolean withinBounds(long value, List<Bound> bounds) {
         for (final Bound b : bounds) {
-            if (b.min <= value && value <= b.max) {
+            if (b.min() <= value && value <= b.max()) {
                 return true;
             }
         }
@@ -125,13 +98,13 @@ public class Day15 {
             bounds.sort(new Comparator<Bound>() {
                 @Override
                 public int compare(Bound o1, Bound o2) {
-                    return Long.compare(o1.min, o2.min);
+                    return Long.compare(o1.min(), o2.min());
                 } 
             });
 
             for (int j = 0; j < bounds.size() - 1; j++) {
-                final long max = bounds.get(j).max;
-                final long min = bounds.get(j+1).min;
+                final long max = bounds.get(j).max();
+                final long min = bounds.get(j+1).min();
 
                 if (min > max && !withinBounds(min-1, bounds)) {
                     final long diff = min - max;

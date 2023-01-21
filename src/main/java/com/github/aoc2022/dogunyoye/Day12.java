@@ -26,42 +26,7 @@ public class Day12 {
         WEST
     }
 
-    private static class Node {
-        final int x;
-        final int y;
-
-        public Node(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null) {
-                return false;
-            }
-
-            if (!(o instanceof Node)) {
-                return false;
-            }
-
-            return (x == ((Node) o).x && y == ((Node) o).y);
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + x;
-            result = prime * result + y;
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("[X:%d,Y:%d]", x , y);
-        }
-    }
+    private static record Node (int x, int y) { }
 
     private static List<Node> getNeighbours(int[][]map, Node c, int length, int depth) {
         final List<Node> neighbours = new ArrayList<>();

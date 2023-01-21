@@ -12,50 +12,7 @@ import java.util.Set;
 
 public class Day18 {
 
-    private static class Position {
-        int x;
-        int y;
-        int z;
-
-        Position(int x, int y, int z) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + x;
-            result = prime * result + y;
-            result = prime * result + z;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            Position other = (Position) obj;
-            if (x != other.x)
-                return false;
-            if (y != other.y)
-                return false;
-            if (z != other.z)
-                return false;
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            return "Positiion[X:" + this.x + ", Y:" + this.y + ", Z:" + this.z + "]";
-        }
-    }
+    private static record Position (int x, int y, int z) { }
 
     static class Cube {
         Position pos;
@@ -68,9 +25,9 @@ public class Day18 {
 
         boolean isAdjacent(Cube other) {
             final Position otherPos = other.pos;
-            final int x = this.pos.x;
-            final int y = this.pos.y;
-            final int z = this.pos.z;
+            final int x = this.pos.x();
+            final int y = this.pos.y();
+            final int z = this.pos.z();
 
             if (otherPos.equals(new Position(x+1, y, z)) || otherPos.equals(new Position(x-1, y, z)) ||
                 otherPos.equals(new Position(x, y+1, z)) || otherPos.equals(new Position(x, y-1, z)) ||
@@ -123,9 +80,9 @@ public class Day18 {
     // 4 - minZ
     // 5 - maxZ
     private static List<Position> getNeighbours(Position pos, int[] bounds, int padding) {
-        final int x = pos.x;
-        final int y = pos.y;
-        final int z = pos.z;
+        final int x = pos.x();
+        final int y = pos.y();
+        final int z = pos.z();
 
         final List<Position> neighbours = new ArrayList<>();
 
@@ -170,9 +127,9 @@ public class Day18 {
         final Set<Position> visited = new HashSet<>();
 
         for (final Cube cube : cubes) {
-            final int x = cube.pos.x;
-            final int y = cube.pos.y;
-            final int z = cube.pos.z;
+            final int x = cube.pos.x();
+            final int y = cube.pos.y();
+            final int z = cube.pos.z();
 
             minX = Math.min(minX, x);
             maxX = Math.max(maxX, x);

@@ -35,12 +35,7 @@ public class Day03 {
         return Arrays.stream(charArr).collect(Collectors.toSet());
     }
 
-    private static class Rucksack {
-        private String items;
-
-        private Rucksack(String items) {
-            this.items = items;
-        }
+    private static record Rucksack (String items) {
 
         private char findDup() {
             final int length = items.length();

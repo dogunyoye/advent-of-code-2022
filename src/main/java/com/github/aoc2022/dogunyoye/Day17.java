@@ -14,43 +14,7 @@ public class Day17 {
 
     public static final long PART_TWO_ROCKS = 1000000000000L;
 
-    private static class State {
-        private String shapeName;
-        private int windDirectionIdx;
-
-        State(String shapeName, int windDirectionIdx) {
-            this.shapeName = shapeName;
-            this.windDirectionIdx = windDirectionIdx;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((shapeName == null) ? 0 : shapeName.hashCode());
-            result = prime * result + windDirectionIdx;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            State other = (State) obj;
-            if (shapeName == null) {
-                if (other.shapeName != null)
-                    return false;
-            } else if (!shapeName.equals(other.shapeName))
-                return false;
-            if (windDirectionIdx != other.windDirectionIdx)
-                return false;
-            return true;
-        }
-    }
+    private static record State (String shapeName, int windDirectionIdx) { }
 
     private static class Point {
         int x;

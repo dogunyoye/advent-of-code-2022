@@ -10,21 +10,13 @@ import java.util.Set;
 
 public class Day09 {
 
-    static class Position {
+    private static class Position {
         private int x;
         private int y;
 
         Position(int x, int y) {
             this.x = x;
             this.y = y;
-        }
-
-        int getX() {
-            return this.x;
-        }
-
-        int getY() {
-            return this.y;
         }
 
         @Override
@@ -69,7 +61,7 @@ public class Day09 {
         }
     }
 
-    static class Knot {
+    private static class Knot {
         private Position pos;
 
         Knot(Position pos) {
