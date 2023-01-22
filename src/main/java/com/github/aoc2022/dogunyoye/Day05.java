@@ -91,7 +91,7 @@ public class Day05 {
         indexToCargoId.put(33, 9);
     }
 
-    static String findTopItems(CrateMover mover, List<Cargo> cargos, List<Instruction> instructions) {
+    public static String findTopItems(CrateMover mover, List<Cargo> cargos, List<Instruction> instructions) {
         mover.move(cargos, instructions);
         String result = "";
         for (final Cargo c : cargos) {

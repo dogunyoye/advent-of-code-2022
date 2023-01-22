@@ -7,91 +7,29 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Day07 {
 
     private static final Set<Directory> fileSystem = new HashSet<>();
     private static final int TOTAL_SPACE = 70000000;
     private static final int SPACE_NEEDED = 30000000;
-    
-    static class File {
-        private final String name;
-        private final int size;
+    private static final Directory ROOT_DIR = new Directory("/", null);
 
-        File(String name, int size) {
-            this.name = name;
-            this.size = size;
-        }
+    private static record File (String name, int size) { }
 
-        int getSize() {
-            return this.size;
-        }
-
-        @Override
-        public String toString() {
-            return "File name: " + this.name + " Size: " + this.size;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((name == null) ? 0 : name.hashCode());
-            result = prime * result + size;
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-
-            if (obj == null) {
-                return false;
-            }
-
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-
-            File other = (File) obj;
-
-            if (name == null) {
-                if (other.name != null) {
-                    return false;
-                }
-            } else if (!name.equals(other.name)) {
-                return false;
-            }
-
-            if (size != other.size) {
-                return false;
-            }
-
-            return true;
-        }
-    }
-
-    static class Directory {
+    private static class Directory {
         private final String name;
         private Directory parent;
         private final Set<Directory> directories;
         private final Set<File> files;
         private int size;
 
-        Directory(String name) {
+        Directory(String name, Directory parent) {
             this.name = name;
             this.directories = new HashSet<>();
             this.files = new HashSet<>();
-        }
-
-        String getName() {
-            return this.name;
-        }
-
-        Directory getParent() {
-            return this.parent;
+            this.parent = parent;
         }
 
         void addDirectory(Directory d) {
@@ -99,7 +37,7 @@ public class Day07 {
         }
 
         Directory getDirectory(String name) {
-            for (Directory d : directories) {
+            for (final Directory d : directories) {
                 if (d.name.equals(name)) {
                     return d;
                 }
@@ -112,26 +50,26 @@ public class Day07 {
             this.files.add(f);
         }
 
-        void setParent(Directory parent) {
-            this.parent = parent;
-        }
-
-        private int getSize(Directory directory) {
+        private int calculateSize(Directory directory) {
             int size = 0;
 
             for (File f : directory.files) {
-                size += f.size;
+                size += f.size();
             }
 
             for (Directory d : directory.directories) {
-                size += getSize(d);
+                size += calculateSize(d);
             }
 
             return size;
         }
 
-        int getSize() {
-            this.size = getSize(this);
+        int calculateSize() {
+            this.size = calculateSize(this);
+            return this.size;
+        }
+
+        int size() {
             return this.size;
         }
 
@@ -220,8 +158,7 @@ public class Day07 {
                         final String name = parts[1];
 
                         if (isDirectory(next)) {
-                            final Directory d = new Directory(name);
-                            d.setParent(currentDir);
+                            final Directory d = new Directory(name, currentDir);
                             fileSystem.add(d);
                             currentDir.addDirectory(d);
                         } else {
@@ -260,44 +197,31 @@ public class Day07 {
     }
 
     public static int findSumOfDirectoriesLessThan100000() {
-        int sum = 0;
-        for (Directory d : fileSystem) {
-            int size = d.getSize();
-            if (size <= 100000) {
-                sum += size;
-            }
-        }
-
-        return sum;
+        return fileSystem.stream().filter(d -> d.calculateSize() <= 100000)
+            .collect(Collectors.summingInt(Directory::size));
     }
 
-    public static int findSmallestDirectoryToDelete(Directory root) {
-        final int remaining = TOTAL_SPACE - root.size;
+    public static int findSmallestDirectoryToDelete() {
+        final int remaining = TOTAL_SPACE - ROOT_DIR.size;
         final int toClear = SPACE_NEEDED - remaining;
-        int smallest = Integer.MAX_VALUE;
-        for (Directory d : fileSystem) {
-            if (d.size >= toClear) {
-                smallest = Math.min(smallest, d.size);
-            }
-        }
 
-        return smallest;
+        return fileSystem.stream().filter(d -> d.calculateSize() >= toClear)
+            .min((d1, d2) -> Integer.compare(d1.size(), d2.size())).get().size();
     }
 
-    static void traverseFileSystem(List<String> output, Directory root) {
-        fileSystem.add(root);
+    static void traverseFileSystem(List<String> output) {
+        fileSystem.add(ROOT_DIR);
         final Iterator<String> iter = output.iterator();
         // skip first command
         iter.next();
-        parseCommandsAndOutput(iter, root);
+        parseCommandsAndOutput(iter, ROOT_DIR);
     }
 
     public static void main(String[] args) throws IOException {
         final List<String> output = Files.readAllLines(Path.of("src/main/resources/Day07.txt"));
-        final Directory root = new Directory("/");
-        traverseFileSystem(output, root);
+        traverseFileSystem(output);
 
         System.out.println("Part 1: " + findSumOfDirectoriesLessThan100000());
-        System.out.println("Part 2: " + findSmallestDirectoryToDelete(root));
+        System.out.println("Part 2: " + findSmallestDirectoryToDelete());
     }
 }

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Day18 {
 
@@ -21,6 +22,10 @@ public class Day18 {
         Cube(Position pos) {
             this.pos = pos;
             this.visibleFaces = 6;
+        }
+
+        int getVisibleFaces() {
+            return this.visibleFaces;
         }
 
         boolean isAdjacent(Cube other) {
@@ -65,12 +70,7 @@ public class Day18 {
             }
         }
 
-        int result = 0;
-        for (final Cube cube : cubes) {
-            result += cube.visibleFaces;
-        }
-
-        return result;
+        return cubes.stream().collect(Collectors.summingInt(Cube::getVisibleFaces));
     }
 
     // 0 - minX
