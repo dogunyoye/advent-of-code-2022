@@ -346,9 +346,9 @@ public class Day17 {
                 }
 
                 return result;
-            } else {
-                cycle.put(state, value);
             }
+
+            cycle.put(state, value);
 
             while (true) {
                 final int i = idx % length;
