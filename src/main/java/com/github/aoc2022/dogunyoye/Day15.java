@@ -56,21 +56,6 @@ public class Day15 {
         return sensors;
     }
 
-    static long getNumberOfPositionsWithNoBeacon(List<Sensor> sensors, int y) {
-        long min = Long.MAX_VALUE;
-        long max = Long.MIN_VALUE;
-
-        for (final Sensor s : sensors) {
-            final Bound bound = s.getBound(y);
-            if (bound != null) {
-                min = Math.min(min, bound.min());
-                max = Math.max(max, bound.max());
-            }
-        }
-
-        return max - min;
-    }
-
     private static boolean withinBounds(long value, List<Bound> bounds) {
         for (final Bound b : bounds) {
             if (b.min() <= value && value <= b.max()) {
@@ -81,7 +66,7 @@ public class Day15 {
         return false;
     }
 
-    static long calculateTuningFrequency(List<Sensor> sensors, int y) {
+    public static long calculateTuningFrequency(List<Sensor> sensors, int y) {
 
         for (int i = 0; i <= y; i++) {
 
@@ -106,7 +91,7 @@ public class Day15 {
                 final long max = bounds.get(j).max();
                 final long min = bounds.get(j+1).min();
 
-                if (min > max && !withinBounds(min-1, bounds)) {
+                if (!withinBounds(min-1, bounds)) {
                     final long diff = min - max;
                     // diff of 2 => there is a point in between
                     // the max of one bound and the min of the other
@@ -121,6 +106,21 @@ public class Day15 {
         }
 
         throw new RuntimeException("Value not found");
+    }
+
+    public static long getNumberOfPositionsWithNoBeacon(List<Sensor> sensors, int y) {
+        long min = Long.MAX_VALUE;
+        long max = Long.MIN_VALUE;
+
+        for (final Sensor s : sensors) {
+            final Bound bound = s.getBound(y);
+            if (bound != null) {
+                min = Math.min(min, bound.min);
+                max = Math.max(max, bound.max);
+            }
+        }
+
+        return max - min;
     }
 
     public static void main(String[] args) throws IOException {
