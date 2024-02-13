@@ -83,11 +83,16 @@ public class Day19 {
             this.inventory.put(Material.GEODE, 0);
         }
 
+        private Factory(List<Material> robots, Map<Material, Integer> inventory) {
+            this.robots = robots;
+            this.inventory = inventory;
+        }
+
         private List<Material> canBuild(Blueprint bp) {
             final List<Material> robots = new ArrayList<>();
             final Map<Material, Recipe> recipes = bp.getRecipes();
 
-            recipes.forEach((m0, r) -> {
+            recipes.forEach((m, r) -> {
                 boolean canBuild = true;
                 for (final Entry<Material, Integer> e : r.required.entrySet()) {
                     if (inventory.get(e.getKey()) < e.getValue()) {
@@ -97,11 +102,26 @@ public class Day19 {
                 }
 
                 if (canBuild) {
-                    robots.add(m0);
+                    robots.add(m);
                 }
             });
 
             return robots;
+        }
+
+        private void build(Blueprint bp, Material m) {
+            final Recipe r = bp.getRecipes().get(m);
+            for (final Entry<Material, Integer> e : r.required.entrySet()) {
+                this.inventory.put(e.getKey(), this.inventory.get(e.getKey()) - e.getValue());
+            }
+
+            this.robots.add(m);
+        }
+
+        private void collect() {
+            this.robots.forEach((m) -> {
+                this.inventory.put(m, this.inventory.get(m) + 1);
+            });
         }
     }
 
@@ -119,6 +139,16 @@ public class Day19 {
         });
 
         return blueprints;
+    }
+
+    private static int findMaxGeodeProduction(Factory factory, Blueprint bp, int timeLeft) {
+        if (timeLeft == 0) {
+            return factory.inventory.get(Material.GEODE);
+        }
+
+        factory.collect();
+
+        return 0;
     }
 
     public static int calculateBlueprintQualityLevel(List<String> data) {
