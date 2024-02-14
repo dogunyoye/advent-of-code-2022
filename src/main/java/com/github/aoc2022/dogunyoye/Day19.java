@@ -118,7 +118,23 @@ public class Day19 {
             this.robots.add(m);
         }
 
-        private void collect() {
+        private Factory copy() {
+            final Map<Material, Integer> inventoryCopy = new HashMap<>();
+            final List<Material> robotsCopy = new ArrayList<>();
+
+            this.inventory.forEach((m, c) -> {
+                final int count = c;
+                inventoryCopy.put(m, count);
+            });
+
+            this.robots.forEach((m) -> {
+                robotsCopy.add(m);
+            });
+
+            return new Factory(robotsCopy, inventoryCopy);
+        }
+
+        private void produce() {
             this.robots.forEach((m) -> {
                 this.inventory.put(m, this.inventory.get(m) + 1);
             });
@@ -146,14 +162,30 @@ public class Day19 {
             return factory.inventory.get(Material.GEODE);
         }
 
-        factory.collect();
+        factory.produce();
+        int result = 0;
 
-        return 0;
+        final List<Material> canBuild = factory.canBuild(bp);
+        if (canBuild.size() >= 2) {
+            for (final Material robot : canBuild) {
+                final Factory newFactory = factory.copy();
+                newFactory.build(bp, robot);
+                result = Math.max(result, findMaxGeodeProduction(newFactory, bp, timeLeft - 1));
+            }
+        } else {
+            result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1));
+        }
+
+        return result;
     }
 
     public static int calculateBlueprintQualityLevel(List<String> data) {
         final List<Blueprint> blueprints = createBlueprints(data);
-        final Factory factory = new Factory();
+        int result = 0;
+
+        for (final Blueprint bp : blueprints) {
+            System.out.println(findMaxGeodeProduction(new Factory(), bp, 24));
+        }
         return 0;
     }
 
