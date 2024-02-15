@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,13 +45,20 @@ public class Day19 {
         private final Recipe clayRobotRecipe;
         private final Recipe obsidianRobotRecipe;
         private final Recipe geodeRobotRecipe;
+        private final Map<Material, Integer> maxMaterials;
 
-        private Blueprint(int id, Recipe oreRobotRecipe, Recipe clayRobotRecipe, Recipe obsidianRobotRecipe, Recipe geodeRobotRecipe) {
+        private Blueprint(int id,
+            Recipe oreRobotRecipe,
+            Recipe clayRobotRecipe,
+            Recipe obsidianRobotRecipe,
+            Recipe geodeRobotRecipe,
+            Map<Material, Integer> maxMaterials) {
             this.id = id;
             this.oreRobotRecipe = oreRobotRecipe;
             this.clayRobotRecipe = clayRobotRecipe;
             this.obsidianRobotRecipe = obsidianRobotRecipe;
             this.geodeRobotRecipe = geodeRobotRecipe;
+            this.maxMaterials = maxMaterials;
         }
 
         private Map<Material, Recipe> getRecipes() {
@@ -95,7 +103,7 @@ public class Day19 {
             recipes.forEach((m, r) -> {
                 boolean canBuild = true;
                 for (final Entry<Material, Integer> e : r.required.entrySet()) {
-                    if (inventory.get(e.getKey()) < e.getValue()) {
+                    if (this.inventory.get(e.getKey()) < e.getValue()) {
                         canBuild = false;
                         break;
                     }
@@ -109,13 +117,13 @@ public class Day19 {
             return robots;
         }
 
-        private void build(Blueprint bp, Material m) {
-            final Recipe r = bp.getRecipes().get(m);
+        private void build(Blueprint bp, Material robot) {
+            final Recipe r = bp.getRecipes().get(robot);
             for (final Entry<Material, Integer> e : r.required.entrySet()) {
                 this.inventory.put(e.getKey(), this.inventory.get(e.getKey()) - e.getValue());
             }
 
-            this.robots.add(m);
+            this.robots.add(robot);
         }
 
         private Factory copy() {
@@ -139,6 +147,10 @@ public class Day19 {
                 this.inventory.put(m, this.inventory.get(m) + 1);
             });
         }
+
+        private long count(Material robot) {
+            return this.robots.stream().filter((m) -> m == robot).count();
+        }
     }
 
     private static List<Blueprint> createBlueprints(List<String> data) {
@@ -147,11 +159,19 @@ public class Day19 {
             final Matcher m = PATTERN.matcher(line);
             m.find();
             final int id = Integer.parseInt(m.group(1));
+            final Map<Material, Integer> maxMaterials = new HashMap<>();
             final Recipe oreRobotRecipe = new Recipe(Material.ORE, Map.of(Material.ORE, Integer.parseInt(m.group(2))));
             final Recipe clayRobotRecipe = new Recipe(Material.CLAY, Map.of(Material.ORE, Integer.parseInt(m.group(3))));
             final Recipe obsidianRobotRecipe = new Recipe(Material.OBSIDIAN, Map.of(Material.ORE, Integer.parseInt(m.group(4)), Material.CLAY, Integer.parseInt(m.group(5))));
             final Recipe geodeRobotRecipe = new Recipe(Material.GEODE, Map.of(Material.ORE, Integer.parseInt(m.group(6)), Material.OBSIDIAN, Integer.parseInt(m.group(7))));
-            blueprints.add(new Blueprint(id, oreRobotRecipe, clayRobotRecipe, obsidianRobotRecipe, geodeRobotRecipe));
+
+            maxMaterials.put(Material.ORE,
+                Collections.max(List.of(oreRobotRecipe.required.get(Material.ORE), clayRobotRecipe.required.get(Material.ORE), obsidianRobotRecipe.required.get(Material.ORE), geodeRobotRecipe.required.get(Material.ORE))));
+
+            maxMaterials.put(Material.CLAY, obsidianRobotRecipe.required.get(Material.CLAY));
+            maxMaterials.put(Material.OBSIDIAN, geodeRobotRecipe.required.get(Material.OBSIDIAN));
+
+            blueprints.add(new Blueprint(id, oreRobotRecipe, clayRobotRecipe, obsidianRobotRecipe, geodeRobotRecipe, maxMaterials));
         });
 
         return blueprints;
@@ -166,16 +186,19 @@ public class Day19 {
         int result = 0;
 
         final List<Material> canBuild = factory.canBuild(bp);
-        if (canBuild.size() >= 2) {
-            for (final Material robot : canBuild) {
+
+        for (final Material robot : canBuild) {
+            if (robot == Material.GEODE || factory.count(robot) < bp.maxMaterials.get(robot)) {
                 final Factory newFactory = factory.copy();
                 newFactory.build(bp, robot);
                 result = Math.max(result, findMaxGeodeProduction(newFactory, bp, timeLeft - 1));
             }
-        } else {
-            result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1));
         }
 
+        if (canBuild.isEmpty()) {
+            result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1));
+        }
+        //result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1));
         return result;
     }
 
