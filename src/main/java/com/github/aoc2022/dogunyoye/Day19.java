@@ -177,37 +177,46 @@ public class Day19 {
         return blueprints;
     }
 
-    private static int findMaxGeodeProduction(Factory factory, Blueprint bp, int timeLeft) {
+    private static int findMaxGeodeProduction(Factory factory, Blueprint bp, int timeLeft, Map<Integer, Integer> memo) {
         if (timeLeft == 0) {
             return factory.inventory.get(Material.GEODE);
         }
 
         factory.produce();
-        int result = 0;
 
+        if (memo.containsKey(timeLeft)) {
+            final int maxGeodeAtTime = memo.get(timeLeft);
+            if (factory.inventory.get(Material.GEODE) < maxGeodeAtTime) {
+                return maxGeodeAtTime;
+            }
+        }
+
+        int result = 0;
         final List<Material> canBuild = factory.canBuild(bp);
 
         for (final Material robot : canBuild) {
             if (robot == Material.GEODE || factory.count(robot) < bp.maxMaterials.get(robot)) {
                 final Factory newFactory = factory.copy();
                 newFactory.build(bp, robot);
-                result = Math.max(result, findMaxGeodeProduction(newFactory, bp, timeLeft - 1));
+                result = Math.max(result, findMaxGeodeProduction(newFactory, bp, timeLeft - 1, memo));
             }
         }
 
-        if (canBuild.isEmpty()) {
-            result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1));
-        }
+        result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1, memo));
+
         //result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1));
+        memo.put(timeLeft, factory.inventory.get(Material.GEODE));
         return result;
     }
 
     public static int calculateBlueprintQualityLevel(List<String> data) {
         final List<Blueprint> blueprints = createBlueprints(data);
+        final Map<Integer, Integer> memo = new HashMap<>();
         int result = 0;
 
         for (final Blueprint bp : blueprints) {
-            System.out.println(findMaxGeodeProduction(new Factory(), bp, 24));
+            System.out.println(findMaxGeodeProduction(new Factory(), bp, 24, memo));
+            memo.clear();
         }
         return 0;
     }
