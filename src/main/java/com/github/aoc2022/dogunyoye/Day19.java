@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 
 public class Day19 {
 
+    private static int maxGeodes = 0;
+
     private static final Pattern PATTERN =
         Pattern.compile("Blueprint (\\d+): Each ore robot costs (\\d+) ore. Each clay robot costs (\\d+) ore. Each obsidian robot costs (\\d+) ore and (\\d+) clay. Each geode robot costs (\\d+) ore and (\\d+) obsidian.");
 
@@ -61,12 +63,8 @@ public class Day19 {
             this.maxMaterials = maxMaterials;
         }
 
-        private Map<Material, Recipe> getRecipes() {
-            return Map.of(
-                Material.ORE, oreRobotRecipe,
-                Material.CLAY, clayRobotRecipe,
-                Material.OBSIDIAN, obsidianRobotRecipe,
-                Material.GEODE, geodeRobotRecipe);
+        private List<Recipe> getRecipes() {
+            return List.of(oreRobotRecipe, clayRobotRecipe, obsidianRobotRecipe, geodeRobotRecipe);
         }
 
         @Override
@@ -98,9 +96,9 @@ public class Day19 {
 
         private List<Material> canBuild(Blueprint bp) {
             final List<Material> robots = new ArrayList<>();
-            final Map<Material, Recipe> recipes = bp.getRecipes();
+            final List<Recipe> recipes = bp.getRecipes();
 
-            recipes.forEach((m, r) -> {
+            recipes.forEach((r) -> {
                 boolean canBuild = true;
                 for (final Entry<Material, Integer> e : r.required.entrySet()) {
                     if (this.inventory.get(e.getKey()) < e.getValue()) {
@@ -110,7 +108,7 @@ public class Day19 {
                 }
 
                 if (canBuild) {
-                    robots.add(m);
+                    robots.add(r.material);
                 }
             });
 
@@ -118,7 +116,7 @@ public class Day19 {
         }
 
         private void build(Blueprint bp, Material robot) {
-            final Recipe r = bp.getRecipes().get(robot);
+            final Recipe r = bp.getRecipes().stream().filter((recipe) -> recipe.material == robot).findFirst().get();
             for (final Entry<Material, Integer> e : r.required.entrySet()) {
                 this.inventory.put(e.getKey(), this.inventory.get(e.getKey()) - e.getValue());
             }
@@ -151,6 +149,105 @@ public class Day19 {
         private long count(Material robot) {
             return this.robots.stream().filter((m) -> m == robot).count();
         }
+
+        private State toState(int timeLeft) {
+            final long oreRobots = this.robots.stream().filter((m) -> m == Material.ORE).count();
+            final long clayRobots = this.robots.stream().filter((m) -> m == Material.CLAY).count();
+            final long obsidianRobots = this.robots.stream().filter((m) -> m == Material.OBSIDIAN).count();
+            final long geodeRobots = this.robots.stream().filter((m) -> m == Material.GEODE).count();
+
+            return new State(inventory, oreRobots, clayRobots, obsidianRobots, geodeRobots, timeLeft);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((robots == null) ? 0 : robots.hashCode());
+            result = prime * result + ((inventory == null) ? 0 : inventory.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Factory other = (Factory) obj;
+            if (robots == null) {
+                if (other.robots != null)
+                    return false;
+            } else if (!robots.equals(other.robots))
+                return false;
+            if (inventory == null) {
+                if (other.inventory != null)
+                    return false;
+            } else if (!inventory.equals(other.inventory))
+                return false;
+            return true;
+        }
+    }
+
+    private static class State {
+        private final Map<Material, Integer> inventory;
+        private final long oreRobots;
+        private final long clayRobots;
+        private final long obsidianRobots;
+        private final long geodeRobots;
+        private final int timeLeft;
+
+        public State(Map<Material, Integer> inventory, long oreRobots, long clayRobots, long obsidianRobots,
+                long geodeRobots, int timeLeft) {
+            this.inventory = inventory;
+            this.oreRobots = oreRobots;
+            this.clayRobots = clayRobots;
+            this.obsidianRobots = obsidianRobots;
+            this.geodeRobots = geodeRobots;
+            this.timeLeft = timeLeft;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((inventory == null) ? 0 : inventory.hashCode());
+            result = prime * result + (int) (oreRobots ^ (oreRobots >>> 32));
+            result = prime * result + (int) (clayRobots ^ (clayRobots >>> 32));
+            result = prime * result + (int) (obsidianRobots ^ (obsidianRobots >>> 32));
+            result = prime * result + (int) (geodeRobots ^ (geodeRobots >>> 32));
+            result = prime * result + timeLeft;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            State other = (State) obj;
+            if (inventory == null) {
+                if (other.inventory != null)
+                    return false;
+            } else if (!inventory.equals(other.inventory))
+                return false;
+            if (oreRobots != other.oreRobots)
+                return false;
+            if (clayRobots != other.clayRobots)
+                return false;
+            if (obsidianRobots != other.obsidianRobots)
+                return false;
+            if (geodeRobots != other.geodeRobots)
+                return false;
+            if (timeLeft != other.timeLeft)
+                return false;
+            return true;
+        }
     }
 
     private static List<Blueprint> createBlueprints(List<String> data) {
@@ -177,52 +274,80 @@ public class Day19 {
         return blueprints;
     }
 
-    private static int findMaxGeodeProduction(Factory factory, Blueprint bp, int timeLeft, Map<Integer, Integer> memo) {
+    static int findMaxGeodeProduction(Factory factory, Blueprint bp, int timeLeft, Map<State, Integer> memo) {
         if (timeLeft == 0) {
             return factory.inventory.get(Material.GEODE);
         }
 
-        factory.produce();
+        final long geodeRobots = factory.robots.stream().filter((r) -> r == Material.GEODE).count();
+        final int currentGeodes = factory.inventory.get(Material.GEODE);
+        final long maxPossibleGeodes = currentGeodes + (geodeRobots * timeLeft) + ((timeLeft * (timeLeft - 1))) / 2;
 
-        if (memo.containsKey(timeLeft)) {
-            final int maxGeodeAtTime = memo.get(timeLeft);
-            if (factory.inventory.get(Material.GEODE) < maxGeodeAtTime) {
-                return maxGeodeAtTime;
-            }
+        if (maxPossibleGeodes <= maxGeodes) {
+            return 0;
         }
 
-        int result = 0;
+        final State state = factory.toState(timeLeft);
+        final Integer cached = memo.get(state);
+
+        if (cached != null) {
+            return cached;
+        }
+
+        int result = factory.inventory.get(Material.GEODE);
         final List<Material> canBuild = factory.canBuild(bp);
 
         for (final Material robot : canBuild) {
             if (robot == Material.GEODE || factory.count(robot) < bp.maxMaterials.get(robot)) {
                 final Factory newFactory = factory.copy();
+                newFactory.produce();
                 newFactory.build(bp, robot);
                 result = Math.max(result, findMaxGeodeProduction(newFactory, bp, timeLeft - 1, memo));
             }
         }
 
+        factory.produce();
         result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1, memo));
 
-        //result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1));
-        memo.put(timeLeft, factory.inventory.get(Material.GEODE));
+        maxGeodes = Math.max(maxGeodes, result);
+
+        memo.put(factory.toState(timeLeft), result);
         return result;
     }
 
     public static int calculateBlueprintQualityLevel(List<String> data) {
         final List<Blueprint> blueprints = createBlueprints(data);
-        final Map<Integer, Integer> memo = new HashMap<>();
+        final Map<State, Integer> memo = new HashMap<>();
         int result = 0;
 
         for (final Blueprint bp : blueprints) {
-            System.out.println(findMaxGeodeProduction(new Factory(), bp, 24, memo));
+            final Factory factory = new Factory();
+            result += bp.id * findMaxGeodeProduction(factory, bp, 24, memo);
             memo.clear();
+            maxGeodes = 0;
         }
-        return 0;
+
+        return result;
+    }
+
+    public static long calculateProductOfTheLargestOpenGeodes(List<String> data) {
+        final List<Blueprint> blueprints = createBlueprints(data);
+
+        final int geodes0 = findMaxGeodeProduction(new Factory(), blueprints.get(0), 32, new HashMap<State, Integer>());
+        maxGeodes = 0;
+
+        final int geodes1 = findMaxGeodeProduction(new Factory(), blueprints.get(1), 32, new HashMap<State, Integer>());
+        maxGeodes = 0;
+
+        final int geodes2 = findMaxGeodeProduction(new Factory(), blueprints.get(2), 32, new HashMap<State, Integer>());
+        maxGeodes = 0;
+
+        return geodes0 * geodes1 * geodes2;
     }
 
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day19.txt"));
         System.out.println("Part 1: " + calculateBlueprintQualityLevel(data));
+        System.out.println("Part 2: " + calculateProductOfTheLargestOpenGeodes(data));
     }
 }
