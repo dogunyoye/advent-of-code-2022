@@ -3,7 +3,10 @@ package com.github.aoc2022.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Day22 {
 
@@ -17,6 +20,14 @@ public class Day22 {
 
         Direction(int value) {
             this.value = value;
+        }
+
+        private Direction turnLeft() {
+            return Arrays.stream(Direction.values()).filter((d) -> d.value == Math.floorMod(this.value - 1, 4)).findFirst().get();
+        }
+
+        private Direction turnRight() {
+            return Arrays.stream(Direction.values()).filter((d) -> d.value == Math.floorMod(this.value + 1, 4)).findFirst().get();
         }
     }
 
@@ -39,6 +50,10 @@ public class Day22 {
         private InstructionSupplier(String instructions) {
             this.instructions = instructions;
             this.currentIdx = 0;
+        }
+
+        private boolean hasNext() {
+            return currentIdx < instructions.length();
         }
 
         private String next() {
@@ -80,6 +95,27 @@ public class Day22 {
         return maxLength;
     }
 
+    // get the min and max index (width) of the map at every level
+    private static Map<Integer, int[]> getMapLengthBounds(char[][] map) {
+        final Map<Integer, int[]> lengthBounds = new HashMap<>();
+        for (int i = 0; i < map.length; i++) {
+            final int[] bounds = new int[]{-1, -1};
+            lengthBounds.put(i, bounds);
+            int currIdx = 0;
+            for (int j = 0; j < map[0].length; j++) {
+                if (map[i][j] != '@') {
+                    if (lengthBounds.get(i)[0] == -1) {
+                        lengthBounds.get(i)[0] = j;
+                    }
+                    currIdx = j;
+                }
+            }
+            lengthBounds.get(i)[1] = currIdx;
+        }
+
+        return lengthBounds;
+    }
+
     private static char[][] buildMap(List<String> data) {
         final List<String> mapData = data.subList(0, data.size() - 2);
         final int mapDepth = mapData.size();
@@ -103,12 +139,20 @@ public class Day22 {
     public static int findPassword(List<String> data) {
         final char[][] map = buildMap(data);
         final InstructionSupplier supplier = new InstructionSupplier(data.get(data.size() - 1));
-        String instruction = supplier.next();
+        printMap(map);
 
-        while (instruction != null) {
-            System.out.println(instruction);
-            instruction = supplier.next();
+        final Map<Integer, int[]> lengthBounds = getMapLengthBounds(map);
+        lengthBounds.forEach((k, v) -> {
+            System.out.println(k + " " + ": " + Arrays.toString(v));
+        });
+
+        while (supplier.hasNext()) {
+            final String instruction = supplier.next();
+            //System.out.println(instruction);
         }
+
+        System.out.println(Direction.EAST.turnLeft());
+        System.out.println(Direction.EAST.turnRight());
 
         return 0;
     }
