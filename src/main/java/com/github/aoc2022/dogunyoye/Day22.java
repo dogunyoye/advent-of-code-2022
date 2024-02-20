@@ -157,7 +157,6 @@ public class Day22 {
         return 0;
     }
 
-    
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day22.txt"));
         System.out.println("Part 1: " + findPassword(data));
