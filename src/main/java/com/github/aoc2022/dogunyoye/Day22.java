@@ -18,7 +18,7 @@ public class Day22 {
         
         private int value;
 
-        Direction(int value) {
+        private Direction(int value) {
             this.value = value;
         }
 
@@ -40,6 +40,11 @@ public class Day22 {
             this.i = i;
             this.j = j;
             this.dir = dir;
+        }
+
+        @Override
+        public String toString() {
+            return "Position [i=" + i + ", j=" + j + ", dir=" + dir + "]";
         }
     }
 
@@ -116,6 +121,25 @@ public class Day22 {
         return lengthBounds;
     }
 
+    private static Map<Integer, int[]> getMapDepthBounds(char[][] map) {
+        final Map<Integer, int[]> depthBounds = new HashMap<>();
+        for (int i = 0; i < map[0].length; i++) {
+            final int[] bounds = new int[]{-1, -1};
+            depthBounds.put(i, bounds);
+            int currIdx = 0;
+            for (int j = 0; j < map.length; j++) {
+                if (map[j][i] != '@') {
+                    if (depthBounds.get(i)[0] == -1) {
+                        depthBounds.get(i)[0] = j;
+                    }
+                    currIdx = j;
+                }
+            }
+            depthBounds.get(i)[1] = currIdx;
+        }
+        return depthBounds;
+    }
+
     private static char[][] buildMap(List<String> data) {
         final List<String> mapData = data.subList(0, data.size() - 2);
         final int mapDepth = mapData.size();
@@ -139,10 +163,18 @@ public class Day22 {
     public static int findPassword(List<String> data) {
         final char[][] map = buildMap(data);
         final InstructionSupplier supplier = new InstructionSupplier(data.get(data.size() - 1));
+        final Position pos = new Position(0, data.get(0).indexOf('.'), Direction.EAST);
         printMap(map);
 
         final Map<Integer, int[]> lengthBounds = getMapLengthBounds(map);
         lengthBounds.forEach((k, v) -> {
+            System.out.println(k + " " + ": " + Arrays.toString(v));
+        });
+
+        System.out.println("====================");
+
+        final Map<Integer, int[]> depthBounds = getMapDepthBounds(map);
+        depthBounds.forEach((k, v) -> {
             System.out.println(k + " " + ": " + Arrays.toString(v));
         });
 
