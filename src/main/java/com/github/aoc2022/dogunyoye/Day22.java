@@ -22,12 +22,12 @@ public class Day22 {
             this.value = value;
         }
 
-        private Direction turnLeft() {
-            return Arrays.stream(Direction.values()).filter((d) -> d.value == Math.floorMod(this.value - 1, 4)).findFirst().get();
-        }
-
-        private Direction turnRight() {
-            return Arrays.stream(Direction.values()).filter((d) -> d.value == Math.floorMod(this.value + 1, 4)).findFirst().get();
+        private Direction turn(char direction) {
+            return switch(direction) {
+                case 'L' -> Arrays.stream(Direction.values()).filter((d) -> d.value == Math.floorMod(this.value - 1, 4)).findFirst().get();
+                case 'R' -> Arrays.stream(Direction.values()).filter((d) -> d.value == Math.floorMod(this.value + 1, 4)).findFirst().get();
+                default -> throw new RuntimeException("invalid direction: " + direction);
+            };
         }
     }
 
@@ -164,29 +164,98 @@ public class Day22 {
         final char[][] map = buildMap(data);
         final InstructionSupplier supplier = new InstructionSupplier(data.get(data.size() - 1));
         final Position pos = new Position(0, data.get(0).indexOf('.'), Direction.EAST);
-        printMap(map);
 
         final Map<Integer, int[]> lengthBounds = getMapLengthBounds(map);
-        lengthBounds.forEach((k, v) -> {
-            System.out.println(k + " " + ": " + Arrays.toString(v));
-        });
-
-        System.out.println("====================");
-
         final Map<Integer, int[]> depthBounds = getMapDepthBounds(map);
-        depthBounds.forEach((k, v) -> {
-            System.out.println(k + " " + ": " + Arrays.toString(v));
-        });
 
         while (supplier.hasNext()) {
             final String instruction = supplier.next();
-            //System.out.println(instruction);
+            if (instruction.length() == 1 && Character.isLetter(instruction.charAt(0))) {
+                pos.dir = pos.dir.turn(instruction.charAt(0));
+                continue;
+            }
+
+            int steps = Integer.parseInt(instruction);
+            final int minBound;
+            final int maxBound;
+            int ii = pos.i;
+            int jj = pos.j;
+
+            switch(pos.dir) {
+                case EAST:
+                    minBound = lengthBounds.get(pos.i)[0];
+                    maxBound = lengthBounds.get(pos.i)[1];
+                    while(steps > 0) {
+                        ++jj;
+                        if (jj == maxBound + 1) {
+                            jj = minBound;
+                        }
+
+                        if (map[pos.i][jj] != '#') {
+                            pos.j = jj;
+                            steps--;
+                            continue;
+                        }
+                        break;
+                    }
+                    break;
+                case NORTH:
+                    minBound = depthBounds.get(pos.j)[0];
+                    maxBound = depthBounds.get(pos.j)[1];
+                    while(steps > 0) {
+                        --ii;
+                        if (ii == minBound - 1) {
+                            ii = maxBound;
+                        }
+
+                        if (map[ii][pos.j] != '#') {
+                            pos.i = ii;
+                            steps--;
+                            continue;
+                        }
+                        break;
+                    }
+                    break;
+                case SOUTH:
+                    minBound = depthBounds.get(pos.j)[0];
+                    maxBound = depthBounds.get(pos.j)[1];
+                    while(steps > 0) {
+                        ++ii;
+                        if (ii == maxBound + 1) {
+                            ii = minBound;
+                        }
+
+                        if (map[ii][pos.j] != '#') {
+                            pos.i = ii;
+                            steps--;
+                            continue;
+                        }
+                        break;
+                    }
+                    break;
+                case WEST:
+                    minBound = lengthBounds.get(pos.i)[0];
+                    maxBound = lengthBounds.get(pos.i)[1];
+                    while(steps > 0) {
+                        --jj;
+                        if (jj == minBound - 1) {
+                            jj = maxBound;
+                        }
+
+                        if (map[ii][jj] != '#') {
+                            pos.j = jj;
+                            steps--;
+                            continue;
+                        }
+                        break;
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("Unknown direction: " + pos.dir);
+            }
         }
 
-        System.out.println(Direction.EAST.turnLeft());
-        System.out.println(Direction.EAST.turnRight());
-
-        return 0;
+        return (1000 * (pos.i + 1)) + (4 * (pos.j + 1)) + pos.dir.value;
     }
 
     public static void main(String[] args) throws IOException {
