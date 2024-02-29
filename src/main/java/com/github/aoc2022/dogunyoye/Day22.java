@@ -193,7 +193,7 @@ public class Day22 {
 
                         if (map[pos.i][jj] != '#') {
                             pos.j = jj;
-                            steps--;
+                            --steps;
                             continue;
                         }
                         break;
@@ -210,7 +210,7 @@ public class Day22 {
 
                         if (map[ii][pos.j] != '#') {
                             pos.i = ii;
-                            steps--;
+                            --steps;
                             continue;
                         }
                         break;
@@ -227,7 +227,7 @@ public class Day22 {
 
                         if (map[ii][pos.j] != '#') {
                             pos.i = ii;
-                            steps--;
+                            --steps;
                             continue;
                         }
                         break;
@@ -244,7 +244,7 @@ public class Day22 {
 
                         if (map[ii][jj] != '#') {
                             pos.j = jj;
-                            steps--;
+                            --steps;
                             continue;
                         }
                         break;
