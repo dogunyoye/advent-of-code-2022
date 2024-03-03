@@ -34,17 +34,30 @@ public class Day22 {
     private static class Position {
         private int i;
         private int j;
-        private Direction dir;
 
-        private Position(int i, int j, Direction dir) {
+        private Position(int i, int j) {
             this.i = i;
             this.j = j;
+        }
+
+        @Override
+        public String toString() {
+            return "Position [i=" + i + ", j=" + j + "]";
+        }
+    }
+
+    private static class Player {
+        final Position pos;
+        private Direction dir;
+
+        private Player(Position pos, Direction dir) {
+            this.pos = pos;
             this.dir = dir;
         }
 
         @Override
         public String toString() {
-            return "Position [i=" + i + ", j=" + j + ", dir=" + dir + "]";
+            return "Player [pos=" + pos + ", dir=" + dir + "]";
         }
     }
 
@@ -163,7 +176,7 @@ public class Day22 {
     public static int findPassword(List<String> data) {
         final char[][] map = buildMap(data);
         final InstructionSupplier supplier = new InstructionSupplier(data.get(data.size() - 1));
-        final Position pos = new Position(0, data.get(0).indexOf('.'), Direction.EAST);
+        final Player player = new Player(new Position(0, data.get(0).indexOf('.')), Direction.EAST);
 
         final Map<Integer, int[]> lengthBounds = getMapLengthBounds(map);
         final Map<Integer, int[]> depthBounds = getMapDepthBounds(map);
@@ -171,28 +184,28 @@ public class Day22 {
         while (supplier.hasNext()) {
             final String instruction = supplier.next();
             if (instruction.length() == 1 && Character.isLetter(instruction.charAt(0))) {
-                pos.dir = pos.dir.turn(instruction.charAt(0));
+                player.dir = player.dir.turn(instruction.charAt(0));
                 continue;
             }
 
             int steps = Integer.parseInt(instruction);
             final int minBound;
             final int maxBound;
-            int ii = pos.i;
-            int jj = pos.j;
+            int ii = player.pos.i;
+            int jj = player.pos.j;
 
-            switch(pos.dir) {
+            switch(player.dir) {
                 case EAST:
-                    minBound = lengthBounds.get(pos.i)[0];
-                    maxBound = lengthBounds.get(pos.i)[1];
+                    minBound = lengthBounds.get(player.pos.i)[0];
+                    maxBound = lengthBounds.get(player.pos.i)[1];
                     while(steps > 0) {
                         ++jj;
                         if (jj == maxBound + 1) {
                             jj = minBound;
                         }
 
-                        if (map[pos.i][jj] != '#') {
-                            pos.j = jj;
+                        if (map[player.pos.i][jj] != '#') {
+                            player.pos.j = jj;
                             --steps;
                             continue;
                         }
@@ -200,16 +213,16 @@ public class Day22 {
                     }
                     break;
                 case NORTH:
-                    minBound = depthBounds.get(pos.j)[0];
-                    maxBound = depthBounds.get(pos.j)[1];
+                    minBound = depthBounds.get(player.pos.j)[0];
+                    maxBound = depthBounds.get(player.pos.j)[1];
                     while(steps > 0) {
                         --ii;
                         if (ii == minBound - 1) {
                             ii = maxBound;
                         }
 
-                        if (map[ii][pos.j] != '#') {
-                            pos.i = ii;
+                        if (map[ii][player.pos.j] != '#') {
+                            player.pos.i = ii;
                             --steps;
                             continue;
                         }
@@ -217,16 +230,16 @@ public class Day22 {
                     }
                     break;
                 case SOUTH:
-                    minBound = depthBounds.get(pos.j)[0];
-                    maxBound = depthBounds.get(pos.j)[1];
+                    minBound = depthBounds.get(player.pos.j)[0];
+                    maxBound = depthBounds.get(player.pos.j)[1];
                     while(steps > 0) {
                         ++ii;
                         if (ii == maxBound + 1) {
                             ii = minBound;
                         }
 
-                        if (map[ii][pos.j] != '#') {
-                            pos.i = ii;
+                        if (map[ii][player.pos.j] != '#') {
+                            player.pos.i = ii;
                             --steps;
                             continue;
                         }
@@ -234,8 +247,8 @@ public class Day22 {
                     }
                     break;
                 case WEST:
-                    minBound = lengthBounds.get(pos.i)[0];
-                    maxBound = lengthBounds.get(pos.i)[1];
+                    minBound = lengthBounds.get(player.pos.i)[0];
+                    maxBound = lengthBounds.get(player.pos.i)[1];
                     while(steps > 0) {
                         --jj;
                         if (jj == minBound - 1) {
@@ -243,7 +256,7 @@ public class Day22 {
                         }
 
                         if (map[ii][jj] != '#') {
-                            pos.j = jj;
+                            player.pos.j = jj;
                             --steps;
                             continue;
                         }
@@ -251,11 +264,11 @@ public class Day22 {
                     }
                     break;
                 default:
-                    throw new RuntimeException("Unknown direction: " + pos.dir);
+                    throw new RuntimeException("Unknown direction: " + player.dir);
             }
         }
 
-        return (1000 * (pos.i + 1)) + (4 * (pos.j + 1)) + pos.dir.value;
+        return (1000 * (player.pos.i + 1)) + (4 * (player.pos.j + 1)) + player.dir.value;
     }
 
     public static void main(String[] args) throws IOException {
