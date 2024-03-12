@@ -3,10 +3,13 @@ package com.github.aoc2022.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Day22 {
 
@@ -31,6 +34,52 @@ public class Day22 {
         }
     }
 
+    private static class CubeFace {
+        private final int id;
+        private final Set<Position> points;
+        private final List<List<Position>> borders;
+
+        private CubeFace(int id, Set<Position> points, List<List<Position>> borders) {
+            this.id = id;
+            this.points = points;
+            this.borders = borders;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + id;
+            result = prime * result + ((points == null) ? 0 : points.hashCode());
+            result = prime * result + ((borders == null) ? 0 : borders.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            CubeFace other = (CubeFace) obj;
+            if (id != other.id)
+                return false;
+            if (points == null) {
+                if (other.points != null)
+                    return false;
+            } else if (!points.equals(other.points))
+                return false;
+            if (borders == null) {
+                if (other.borders != null)
+                    return false;
+            } else if (!borders.equals(other.borders))
+                return false;
+            return true;
+        }
+    }
+
     private static class Position {
         private int i;
         private int j;
@@ -44,10 +93,45 @@ public class Day22 {
         public String toString() {
             return "Position [i=" + i + ", j=" + j + "]";
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + i;
+            result = prime * result + j;
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Position other = (Position) obj;
+            if (i != other.i)
+                return false;
+            if (j != other.j)
+                return false;
+            return true;
+        }
+    }
+
+    private static class Transform {
+        private final List<Position> border;
+        private final Direction direction;
+
+        private Transform(List<Position> border, Direction direction) {
+            this.border = border;
+            this.direction = direction;
+        }
     }
 
     private static class Player {
-        final Position pos;
+        private final Position pos;
         private Direction dir;
 
         private Player(Position pos, Direction dir) {
@@ -173,6 +257,193 @@ public class Day22 {
         return map;
     }
 
+    private static List<List<Position>> borders(Position[][] posMap) {
+        final List<Position> north = new ArrayList<>();
+        final List<Position> east = new ArrayList<>();
+        final List<Position> south = new ArrayList<>();
+        final List<Position> west = new ArrayList<>();
+
+        for (int i = 0; i < posMap.length; i++) {
+            for (int j = 0; j < posMap[0].length; j++) {
+                if (i == 0) {
+                    north.add(posMap[i][j]);
+                }
+
+                if (i == posMap.length - 1) {
+                    south.add(posMap[i][j]);
+                }
+
+                if (j == 0) {
+                    west.add(posMap[i][j]);
+                }
+
+                if (j == posMap[0].length - 1) {
+                    east.add(posMap[i][j]);
+                }
+            }
+        }
+
+        return List.of(east, south, west, north);
+    }
+
+    private static List<Position> reverse(List<Position> border) {
+        final List<Position> reversed = new ArrayList<>();
+        for (int i = border.size() - 1; i >= 0; i--) {
+            reversed.add(new Position(border.get(i).i, border.get(i).j));
+        }
+        return reversed;
+    }
+
+    private static CubeFace findFace(Map<CubeFace, List<Transform>> cubeMap, Position pos) {
+        return cubeMap.keySet().stream().filter((c) -> c.points.contains(pos)).findFirst().get();
+    }
+
+    private static int findIndexOnBorder(CubeFace cf, Position pos) {
+        for (final List<Position> bPos : cf.borders) {
+            for (int i = 0; i < bPos.size(); i++) {
+                if (bPos.get(i).equals(pos)) {
+                    return i;
+                }
+            }
+        }
+
+        throw new RuntimeException("Index of position on border not found");
+    }
+
+    private static Map<CubeFace, List<Transform>> buildCubeMap(char[][] map) {
+        final Map<CubeFace, List<Transform>> cubeMap = new HashMap<>();
+        final Position[][] posMap = new Position[4][4];
+        int id = 0;
+
+        int row = 0;
+        int col = 0;
+
+        final Set<Position> points1 = new HashSet<>();
+        for (int i = 0; i <= 3; i++) {
+            for (int j = 8; j <= 11; j++) {
+                points1.add(new Position(i, j));
+                posMap[row][col++] = new Position(i, j);
+            }
+            ++row;
+            col = 0;
+        }
+        final CubeFace c1 = new CubeFace(++id, points1, borders(posMap));
+
+        row = 0;
+        col = 0;
+        final Set<Position> points2 = new HashSet<>();
+        for (int i = 4; i <= 7; i++) {
+            for (int j = 0; j <= 3; j++) {
+                points2.add(new Position(i, j));
+                posMap[row][col++] = new Position(i, j);
+            }
+            ++row;
+            col = 0;
+        }
+        final CubeFace c2 = new CubeFace(++id, points2, borders(posMap));
+
+        row = 0;
+        col = 0;
+        final Set<Position> points3 = new HashSet<>();
+        for (int i = 4; i <= 7; i++) {
+            for (int j = 4; j <= 7; j++) {
+                points3.add(new Position(i, j));
+                posMap[row][col++] = new Position(i, j);
+            }
+            ++row;
+            col = 0;
+        }
+        final CubeFace c3 = new CubeFace(++id, points3, borders(posMap));
+
+        row = 0;
+        col = 0;
+        final Set<Position> points4 = new HashSet<>();
+        for (int i = 4; i <= 7; i++) {
+            for (int j = 8; j <= 11; j++) {
+                points4.add(new Position(i, j));
+                posMap[row][col++] = new Position(i, j);
+            }
+            ++row;
+            col = 0;
+        }
+        final CubeFace c4 = new CubeFace(++id, points4, borders(posMap));
+
+        row = 0;
+        col = 0;
+        final Set<Position> points5 = new HashSet<>();
+        for (int i = 8; i <= 11; i++) {
+            for (int j = 8; j <= 11; j++) {
+                points5.add(new Position(i, j));
+                posMap[row][col++] = new Position(i, j);
+            }
+            ++row;
+            col = 0;
+        }
+        final CubeFace c5 = new CubeFace(++id, points5, borders(posMap));
+
+        row = 0;
+        col = 0;
+        final Set<Position> points6 = new HashSet<>();
+        for (int i = 8; i <= 11; i++) {
+            for (int j = 12; j <= 15; j++) {
+                points6.add(new Position(i, j));
+                posMap[row][col++] = new Position(i, j);
+            }
+            ++row;
+            col = 0;
+        }
+        final CubeFace c6 = new CubeFace(++id, points6, borders(posMap));
+
+        //EAST
+        //SOUTH
+        //WEST
+        //NORTH
+
+        cubeMap.put(c1, List.of(
+                            new Transform(reverse(c6.borders.get(0)), Direction.WEST),
+                            new Transform(c4.borders.get(3), Direction.SOUTH),
+                            new Transform(c3.borders.get(3), Direction.SOUTH),
+                            new Transform(reverse(c2.borders.get(3)), Direction.SOUTH)
+        ));
+
+        cubeMap.put(c2, List.of(
+                            new Transform(c3.borders.get(2), Direction.EAST),
+                            new Transform(reverse(c5.borders.get(1)), Direction.NORTH),
+                            new Transform(reverse(c6.borders.get(1)), Direction.NORTH),
+                            new Transform(reverse(c1.borders.get(3)), Direction.SOUTH)
+        ));
+
+        cubeMap.put(c3, List.of(
+                            new Transform(c4.borders.get(2), Direction.EAST),
+                            new Transform(reverse(c5.borders.get(2)), Direction.EAST),
+                            new Transform(c2.borders.get(0), Direction.WEST),
+                            new Transform(c1.borders.get(2), Direction.EAST)
+        ));
+
+        cubeMap.put(c4, List.of(
+                            new Transform(reverse(c6.borders.get(3)), Direction.SOUTH),
+                            new Transform(c5.borders.get(3), Direction.SOUTH),
+                            new Transform(c3.borders.get(0), Direction.WEST),
+                            new Transform(c1.borders.get(1), Direction.NORTH)
+        ));
+
+        cubeMap.put(c5, List.of(
+                            new Transform(c6.borders.get(2), Direction.EAST),
+                            new Transform(reverse(c2.borders.get(1)), Direction.NORTH),
+                            new Transform(reverse(c3.borders.get(1)), Direction.NORTH),
+                            new Transform(c4.borders.get(1), Direction.NORTH)
+        ));
+
+        cubeMap.put(c6, List.of(
+                            new Transform(reverse(c1.borders.get(0)), Direction.WEST),
+                            new Transform(reverse(c2.borders.get(2)), Direction.EAST),
+                            new Transform(c5.borders.get(0), Direction.WEST),
+                            new Transform(reverse(c4.borders.get(0)), Direction.WEST)
+        ));
+
+        return cubeMap;
+    }
+
     public static int findPassword(List<String> data) {
         final char[][] map = buildMap(data);
         final InstructionSupplier supplier = new InstructionSupplier(data.get(data.size() - 1));
@@ -271,8 +542,148 @@ public class Day22 {
         return (1000 * (player.pos.i + 1)) + (4 * (player.pos.j + 1)) + player.dir.value;
     }
 
+    private static Player transformPlayer(Map<CubeFace, List<Transform>> cubeMap, Player player) {
+        final CubeFace cf = findFace(cubeMap, player.pos);
+        final Transform transform = cubeMap.get(cf).get(player.dir.value);
+        final int idx = findIndexOnBorder(cf, player.pos);
+        final Position newPos = transform.border.get(idx);
+        final Direction newDir = transform.direction;
+        return new Player(newPos, newDir);
+    }
+
+    public static int findPasswordForAlteredMapTraversal(List<String> data) {
+        final char[][] map = buildMap(data);
+        final Map<CubeFace, List<Transform>> cubeMap = buildCubeMap(map);
+
+        final InstructionSupplier supplier = new InstructionSupplier(data.get(data.size() - 1));
+        final Player player = new Player(new Position(0, data.get(0).indexOf('.')), Direction.EAST);
+
+        final Map<Integer, int[]> lengthBounds = getMapLengthBounds(map);
+        final Map<Integer, int[]> depthBounds = getMapDepthBounds(map);
+
+        while (supplier.hasNext()) {
+            final String instruction = supplier.next();
+            if (instruction.length() == 1 && Character.isLetter(instruction.charAt(0))) {
+                player.dir = player.dir.turn(instruction.charAt(0));
+                continue;
+            }
+
+            int steps = Integer.parseInt(instruction);
+
+            while (steps != 0) {
+                final int minBound;
+                final int maxBound;
+                int ii = player.pos.i;
+                int jj = player.pos.j;
+                Direction dir = player.dir;
+
+                boolean terminate = false;
+
+                switch(player.dir) {
+                    case EAST:
+                        maxBound = lengthBounds.get(player.pos.i)[1];
+                        ++jj;
+
+                        if (jj == maxBound + 1) {
+                            final Player newPlayer = transformPlayer(cubeMap, player);
+                            ii = newPlayer.pos.i;
+                            jj = newPlayer.pos.j;
+                            dir = newPlayer.dir;
+                        }
+
+                        if (map[ii][jj] != '#') {
+                            player.pos.i = ii;
+                            player.pos.j = jj;
+                            player.dir = dir;
+                            --steps;
+                            continue;
+                        }
+
+                        terminate = true;
+                        break;
+
+                    case NORTH:
+                        minBound = depthBounds.get(player.pos.j)[0];
+                        --ii;
+
+                        if (ii == minBound - 1) {
+                            final Player newPlayer = transformPlayer(cubeMap, player);
+                            ii = newPlayer.pos.i;
+                            jj = newPlayer.pos.j;
+                            dir = newPlayer.dir;
+                        }
+
+                        if (map[ii][jj] != '#') {
+                            player.pos.i = ii;
+                            player.pos.j = jj;
+                            player.dir = dir;
+                            --steps;
+                            continue;
+                        }
+
+                        terminate = true;
+                        break;
+
+                    case SOUTH:
+                        maxBound = depthBounds.get(player.pos.j)[1];
+                        ++ii;
+
+                        if (ii == maxBound + 1) {
+                            final Player newPlayer = transformPlayer(cubeMap, player);
+                            ii = newPlayer.pos.i;
+                            jj = newPlayer.pos.j;
+                            dir = newPlayer.dir;
+                        }
+
+                        if (map[ii][jj] != '#') {
+                            player.pos.i = ii;
+                            player.pos.j = jj;
+                            player.dir = dir;
+                            --steps;
+                            continue;
+                        }
+
+                        terminate = true;
+                        break;
+
+                    case WEST:
+                        minBound = lengthBounds.get(player.pos.i)[0];
+                        --jj;
+
+                        if (jj == minBound - 1) {
+                            final Player newPlayer = transformPlayer(cubeMap, player);
+                            ii = newPlayer.pos.i;
+                            jj = newPlayer.pos.j;
+                            dir = newPlayer.dir;
+                        }
+
+                        if (map[ii][jj] != '#') {
+                            player.pos.i = ii;
+                            player.pos.j = jj;
+                            player.dir = dir;
+                            --steps;
+                            continue;
+                        }
+
+                        terminate = true;
+                        break;
+
+                    default:
+                        throw new RuntimeException("Unknown direction: " + player.dir);
+                }
+
+                if (terminate) {
+                    break;
+                }
+            }
+        }
+
+        return (1000 * (player.pos.i + 1)) + (4 * (player.pos.j + 1)) + player.dir.value;
+    }
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day22.txt"));
         System.out.println("Part 1: " + findPassword(data));
+        System.out.println("Part 2: " + findPasswordForAlteredMapTraversal(data));
     }
 }
