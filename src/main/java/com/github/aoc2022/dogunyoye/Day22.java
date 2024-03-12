@@ -298,7 +298,7 @@ public class Day22 {
         return cubeMap.keySet().stream().filter((c) -> c.points.contains(pos)).findFirst().get();
     }
 
-    private static int findIndexOnBorder(CubeFace cf, Position pos) {
+    private static int findIndexOfPosition(CubeFace cf, Position pos) {
         for (final List<Position> bPos : cf.borders) {
             for (int i = 0; i < bPos.size(); i++) {
                 if (bPos.get(i).equals(pos)) {
@@ -307,92 +307,37 @@ public class Day22 {
             }
         }
 
-        throw new RuntimeException("Index of position on border not found");
+        throw new RuntimeException("Index of position not found");
+    }
+
+    private static CubeFace buildCubeFace(int id, int depthMin, int depthMax, int lengthMin, int lengthMax) {
+        int row = 0;
+        int col = 0;
+
+        final Set<Position> points = new HashSet<>();
+        final Position[][] posMap = new Position[4][4];
+        for (int i = depthMin; i <= depthMax; i++) {
+            for (int j = lengthMin; j <= lengthMax; j++) {
+                points.add(new Position(i, j));
+                posMap[row][col++] = new Position(i, j);
+            }
+            ++row;
+            col = 0;
+        }
+
+        return new CubeFace(id, points, borders(posMap));
     }
 
     private static Map<CubeFace, List<Transform>> buildCubeMap(char[][] map) {
         final Map<CubeFace, List<Transform>> cubeMap = new HashMap<>();
-        final Position[][] posMap = new Position[4][4];
         int id = 0;
 
-        int row = 0;
-        int col = 0;
-
-        final Set<Position> points1 = new HashSet<>();
-        for (int i = 0; i <= 3; i++) {
-            for (int j = 8; j <= 11; j++) {
-                points1.add(new Position(i, j));
-                posMap[row][col++] = new Position(i, j);
-            }
-            ++row;
-            col = 0;
-        }
-        final CubeFace c1 = new CubeFace(++id, points1, borders(posMap));
-
-        row = 0;
-        col = 0;
-        final Set<Position> points2 = new HashSet<>();
-        for (int i = 4; i <= 7; i++) {
-            for (int j = 0; j <= 3; j++) {
-                points2.add(new Position(i, j));
-                posMap[row][col++] = new Position(i, j);
-            }
-            ++row;
-            col = 0;
-        }
-        final CubeFace c2 = new CubeFace(++id, points2, borders(posMap));
-
-        row = 0;
-        col = 0;
-        final Set<Position> points3 = new HashSet<>();
-        for (int i = 4; i <= 7; i++) {
-            for (int j = 4; j <= 7; j++) {
-                points3.add(new Position(i, j));
-                posMap[row][col++] = new Position(i, j);
-            }
-            ++row;
-            col = 0;
-        }
-        final CubeFace c3 = new CubeFace(++id, points3, borders(posMap));
-
-        row = 0;
-        col = 0;
-        final Set<Position> points4 = new HashSet<>();
-        for (int i = 4; i <= 7; i++) {
-            for (int j = 8; j <= 11; j++) {
-                points4.add(new Position(i, j));
-                posMap[row][col++] = new Position(i, j);
-            }
-            ++row;
-            col = 0;
-        }
-        final CubeFace c4 = new CubeFace(++id, points4, borders(posMap));
-
-        row = 0;
-        col = 0;
-        final Set<Position> points5 = new HashSet<>();
-        for (int i = 8; i <= 11; i++) {
-            for (int j = 8; j <= 11; j++) {
-                points5.add(new Position(i, j));
-                posMap[row][col++] = new Position(i, j);
-            }
-            ++row;
-            col = 0;
-        }
-        final CubeFace c5 = new CubeFace(++id, points5, borders(posMap));
-
-        row = 0;
-        col = 0;
-        final Set<Position> points6 = new HashSet<>();
-        for (int i = 8; i <= 11; i++) {
-            for (int j = 12; j <= 15; j++) {
-                points6.add(new Position(i, j));
-                posMap[row][col++] = new Position(i, j);
-            }
-            ++row;
-            col = 0;
-        }
-        final CubeFace c6 = new CubeFace(++id, points6, borders(posMap));
+        final CubeFace c1 = buildCubeFace(++id, 0, 3, 8, 11);
+        final CubeFace c2 = buildCubeFace(++id, 4, 7, 0, 3);
+        final CubeFace c3 = buildCubeFace(++id, 4, 7, 4, 7);
+        final CubeFace c4 = buildCubeFace(++id, 4, 7, 8, 11);
+        final CubeFace c5 = buildCubeFace(++id, 8, 11, 8, 11);
+        final CubeFace c6 = buildCubeFace(++id, 8, 11, 12, 15);
 
         //EAST
         //SOUTH
@@ -545,7 +490,7 @@ public class Day22 {
     private static Player transformPlayer(Map<CubeFace, List<Transform>> cubeMap, Player player) {
         final CubeFace cf = findFace(cubeMap, player.pos);
         final Transform transform = cubeMap.get(cf).get(player.dir.value);
-        final int idx = findIndexOnBorder(cf, player.pos);
+        final int idx = findIndexOfPosition(cf, player.pos);
         final Position newPos = transform.border.get(idx);
         final Direction newDir = transform.direction;
         return new Player(newPos, newDir);
@@ -585,10 +530,10 @@ public class Day22 {
                         ++jj;
 
                         if (jj == maxBound + 1) {
-                            final Player newPlayer = transformPlayer(cubeMap, player);
-                            ii = newPlayer.pos.i;
-                            jj = newPlayer.pos.j;
-                            dir = newPlayer.dir;
+                            final Player transformedPlayer = transformPlayer(cubeMap, player);
+                            ii = transformedPlayer.pos.i;
+                            jj = transformedPlayer.pos.j;
+                            dir = transformedPlayer.dir;
                         }
 
                         if (map[ii][jj] != '#') {
@@ -607,10 +552,10 @@ public class Day22 {
                         --ii;
 
                         if (ii == minBound - 1) {
-                            final Player newPlayer = transformPlayer(cubeMap, player);
-                            ii = newPlayer.pos.i;
-                            jj = newPlayer.pos.j;
-                            dir = newPlayer.dir;
+                            final Player transformedPlayer = transformPlayer(cubeMap, player);
+                            ii = transformedPlayer.pos.i;
+                            jj = transformedPlayer.pos.j;
+                            dir = transformedPlayer.dir;
                         }
 
                         if (map[ii][jj] != '#') {
@@ -629,10 +574,10 @@ public class Day22 {
                         ++ii;
 
                         if (ii == maxBound + 1) {
-                            final Player newPlayer = transformPlayer(cubeMap, player);
-                            ii = newPlayer.pos.i;
-                            jj = newPlayer.pos.j;
-                            dir = newPlayer.dir;
+                            final Player transformedPlayer = transformPlayer(cubeMap, player);
+                            ii = transformedPlayer.pos.i;
+                            jj = transformedPlayer.pos.j;
+                            dir = transformedPlayer.dir;
                         }
 
                         if (map[ii][jj] != '#') {
@@ -651,10 +596,10 @@ public class Day22 {
                         --jj;
 
                         if (jj == minBound - 1) {
-                            final Player newPlayer = transformPlayer(cubeMap, player);
-                            ii = newPlayer.pos.i;
-                            jj = newPlayer.pos.j;
-                            dir = newPlayer.dir;
+                            final Player transformedPlayer = transformPlayer(cubeMap, player);
+                            ii = transformedPlayer.pos.i;
+                            jj = transformedPlayer.pos.j;
+                            dir = transformedPlayer.dir;
                         }
 
                         if (map[ii][jj] != '#') {
