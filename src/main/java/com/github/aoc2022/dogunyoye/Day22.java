@@ -345,45 +345,45 @@ public class Day22 {
         //NORTH
 
         cubeMap.put(c1, List.of(
-                            new Transform(reverse(c6.borders.get(0)), Direction.WEST),
-                            new Transform(c4.borders.get(3), Direction.SOUTH),
-                            new Transform(c3.borders.get(3), Direction.SOUTH),
-                            new Transform(reverse(c2.borders.get(3)), Direction.SOUTH)
+                            new Transform(reverse(c6.borders.get(Direction.EAST.value)), Direction.WEST),
+                            new Transform(c4.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(c3.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(reverse(c2.borders.get(Direction.NORTH.value)), Direction.SOUTH)
         ));
 
         cubeMap.put(c2, List.of(
-                            new Transform(c3.borders.get(2), Direction.EAST),
-                            new Transform(reverse(c5.borders.get(1)), Direction.NORTH),
-                            new Transform(reverse(c6.borders.get(1)), Direction.NORTH),
-                            new Transform(reverse(c1.borders.get(3)), Direction.SOUTH)
+                            new Transform(c3.borders.get(Direction.WEST.value), Direction.EAST),
+                            new Transform(reverse(c5.borders.get(Direction.SOUTH.value)), Direction.NORTH),
+                            new Transform(reverse(c6.borders.get(Direction.SOUTH.value)), Direction.NORTH),
+                            new Transform(reverse(c1.borders.get(Direction.NORTH.value)), Direction.SOUTH)
         ));
 
         cubeMap.put(c3, List.of(
-                            new Transform(c4.borders.get(2), Direction.EAST),
-                            new Transform(reverse(c5.borders.get(2)), Direction.EAST),
-                            new Transform(c2.borders.get(0), Direction.WEST),
-                            new Transform(c1.borders.get(2), Direction.EAST)
+                            new Transform(c4.borders.get(Direction.WEST.value), Direction.EAST),
+                            new Transform(reverse(c5.borders.get(Direction.WEST.value)), Direction.EAST),
+                            new Transform(c2.borders.get(Direction.EAST.value), Direction.WEST),
+                            new Transform(c1.borders.get(Direction.WEST.value), Direction.EAST)
         ));
 
         cubeMap.put(c4, List.of(
-                            new Transform(reverse(c6.borders.get(3)), Direction.SOUTH),
-                            new Transform(c5.borders.get(3), Direction.SOUTH),
-                            new Transform(c3.borders.get(0), Direction.WEST),
-                            new Transform(c1.borders.get(1), Direction.NORTH)
+                            new Transform(reverse(c6.borders.get(Direction.NORTH.value)), Direction.SOUTH),
+                            new Transform(c5.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(c3.borders.get(Direction.EAST.value), Direction.WEST),
+                            new Transform(c1.borders.get(Direction.SOUTH.value), Direction.NORTH)
         ));
 
         cubeMap.put(c5, List.of(
-                            new Transform(c6.borders.get(2), Direction.EAST),
-                            new Transform(reverse(c2.borders.get(1)), Direction.NORTH),
-                            new Transform(reverse(c3.borders.get(1)), Direction.NORTH),
-                            new Transform(c4.borders.get(1), Direction.NORTH)
+                            new Transform(c6.borders.get(Direction.WEST.value), Direction.EAST),
+                            new Transform(reverse(c2.borders.get(Direction.SOUTH.value)), Direction.NORTH),
+                            new Transform(reverse(c3.borders.get(Direction.SOUTH.value)), Direction.NORTH),
+                            new Transform(c4.borders.get(Direction.SOUTH.value), Direction.NORTH)
         ));
 
         cubeMap.put(c6, List.of(
-                            new Transform(reverse(c1.borders.get(0)), Direction.WEST),
-                            new Transform(reverse(c2.borders.get(2)), Direction.EAST),
-                            new Transform(c5.borders.get(0), Direction.WEST),
-                            new Transform(reverse(c4.borders.get(0)), Direction.WEST)
+                            new Transform(reverse(c1.borders.get(Direction.EAST.value)), Direction.WEST),
+                            new Transform(reverse(c2.borders.get(Direction.WEST.value)), Direction.EAST),
+                            new Transform(c5.borders.get(Direction.EAST.value), Direction.WEST),
+                            new Transform(reverse(c4.borders.get(Direction.EAST.value)), Direction.WEST)
         ));
 
         return cubeMap;
