@@ -298,13 +298,13 @@ public class Day22 {
         return cubeMap.keySet().stream().filter((c) -> c.points.contains(pos)).findFirst().get();
     }
 
-    private static int findIndexOfPosition(CubeFace cf, Position pos) {
-        for (final List<Position> bPos : cf.borders) {
-            for (int i = 0; i < bPos.size(); i++) {
-                if (bPos.get(i).equals(pos)) {
-                    return i;
-                }
+    private static int findIndexOfPosition(CubeFace cf, Position pos, Direction dir) {
+        int idx = 0;
+        for (final Position bPos : cf.borders.get(dir.value)) {
+            if (bPos.equals(pos)) {
+                return idx;
             }
+            ++idx;
         }
 
         throw new RuntimeException("Index of position not found");
@@ -315,7 +315,8 @@ public class Day22 {
         int col = 0;
 
         final Set<Position> points = new HashSet<>();
-        final Position[][] posMap = new Position[4][4];
+        final int size = (depthMax - depthMin) + 1;
+        final Position[][] posMap = new Position[size][size];
         for (int i = depthMin; i <= depthMax; i++) {
             for (int j = lengthMin; j <= lengthMax; j++) {
                 points.add(new Position(i, j));
@@ -329,6 +330,62 @@ public class Day22 {
     }
 
     private static Map<CubeFace, List<Transform>> buildCubeMap(char[][] map) {
+        final Map<CubeFace, List<Transform>> cubeMap = new HashMap<>();
+        int id = 0;
+
+        final CubeFace c1 = buildCubeFace(++id, 0, 49, 50, 99);
+        final CubeFace c2 = buildCubeFace(++id, 0, 49, 100, 149);
+        final CubeFace c3 = buildCubeFace(++id, 50, 99, 50, 99);
+        final CubeFace c4 = buildCubeFace(++id, 100, 149, 0, 49);
+        final CubeFace c5 = buildCubeFace(++id, 100, 149, 50, 99);
+        final CubeFace c6 = buildCubeFace(++id, 150, 199, 0, 49);
+
+        cubeMap.put(c1, List.of(
+                            new Transform(c2.borders.get(Direction.WEST.value), Direction.EAST),
+                            new Transform(c3.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(reverse(c4.borders.get(Direction.WEST.value)), Direction.EAST),
+                            new Transform(c6.borders.get(Direction.WEST.value), Direction.EAST)
+        ));
+
+        cubeMap.put(c2, List.of(
+                            new Transform(reverse(c5.borders.get(Direction.EAST.value)), Direction.WEST),
+                            new Transform(c3.borders.get(Direction.EAST.value), Direction.WEST),
+                            new Transform(c1.borders.get(Direction.EAST.value), Direction.WEST),
+                            new Transform(c6.borders.get(Direction.SOUTH.value), Direction.NORTH)
+        ));
+
+        cubeMap.put(c3, List.of(
+                            new Transform(c2.borders.get(Direction.SOUTH.value), Direction.NORTH),
+                            new Transform(c5.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(c4.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(c1.borders.get(Direction.SOUTH.value), Direction.NORTH)
+        ));
+
+        cubeMap.put(c4, List.of(
+                            new Transform(c5.borders.get(Direction.WEST.value), Direction.EAST),
+                            new Transform(c6.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(reverse(c1.borders.get(Direction.WEST.value)), Direction.EAST),
+                            new Transform(c3.borders.get(Direction.WEST.value), Direction.EAST)
+        ));
+
+        cubeMap.put(c5, List.of(
+                            new Transform(reverse(c2.borders.get(Direction.EAST.value)), Direction.WEST),
+                            new Transform(c6.borders.get(Direction.EAST.value), Direction.WEST),
+                            new Transform(c4.borders.get(Direction.EAST.value), Direction.WEST),
+                            new Transform(c3.borders.get(Direction.SOUTH.value), Direction.NORTH)
+        ));
+
+        cubeMap.put(c6, List.of(
+                            new Transform(c5.borders.get(Direction.SOUTH.value), Direction.NORTH),
+                            new Transform(c2.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(c1.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                            new Transform(c4.borders.get(Direction.SOUTH.value), Direction.NORTH)
+        ));
+
+        return cubeMap;
+    }
+
+    private static Map<CubeFace, List<Transform>> buildExampleCubeMap(char[][] map) {
         final Map<CubeFace, List<Transform>> cubeMap = new HashMap<>();
         int id = 0;
 
@@ -490,15 +547,15 @@ public class Day22 {
     private static Player transformPlayer(Map<CubeFace, List<Transform>> cubeMap, Player player) {
         final CubeFace cf = findFace(cubeMap, player.pos);
         final Transform transform = cubeMap.get(cf).get(player.dir.value);
-        final int idx = findIndexOfPosition(cf, player.pos);
+        final int idx = findIndexOfPosition(cf, player.pos, player.dir);
         final Position newPos = transform.border.get(idx);
         final Direction newDir = transform.direction;
         return new Player(newPos, newDir);
     }
 
-    public static int findPasswordForAlteredMapTraversal(List<String> data) {
+    static int findPasswordForAlteredMapTraversal(List<String> data, boolean isExample) {
         final char[][] map = buildMap(data);
-        final Map<CubeFace, List<Transform>> cubeMap = buildCubeMap(map);
+        final Map<CubeFace, List<Transform>> cubeMap = isExample ? buildExampleCubeMap(map) : buildCubeMap(map);
 
         final InstructionSupplier supplier = new InstructionSupplier(data.get(data.size() - 1));
         final Player player = new Player(new Position(0, data.get(0).indexOf('.')), Direction.EAST);
@@ -624,6 +681,10 @@ public class Day22 {
         }
 
         return (1000 * (player.pos.i + 1)) + (4 * (player.pos.j + 1)) + player.dir.value;
+    }
+
+    public static int findPasswordForAlteredMapTraversal(List<String> data) {
+        return findPasswordForAlteredMapTraversal(data, false);
     }
 
     public static void main(String[] args) throws IOException {
