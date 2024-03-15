@@ -396,11 +396,6 @@ public class Day22 {
         final CubeFace c5 = buildCubeFace(++id, 8, 11, 8, 11);
         final CubeFace c6 = buildCubeFace(++id, 8, 11, 12, 15);
 
-        //EAST
-        //SOUTH
-        //WEST
-        //NORTH
-
         cubeMap.put(c1, List.of(
                             new Transform(reverse(c6.borders.get(Direction.EAST.value)), Direction.WEST),
                             new Transform(c4.borders.get(Direction.NORTH.value), Direction.SOUTH),
