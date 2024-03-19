@@ -3,13 +3,15 @@ package com.github.aoc2022.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Day24 {
 
@@ -25,6 +27,20 @@ public class Day24 {
         @Override
         public String toString() {
             return "Position [i=" + i + ", j=" + j + "]";
+        }
+
+        private List<Position> neighbours(MapData md) {
+
+            final Position[] neighbours = new Position[]{
+                new Position(i - 1, j),
+                new Position(i, j + 1),
+                new Position(i + 1, j),
+                new Position(i, j - 1)
+            };
+
+            return Arrays.stream(neighbours)
+                .filter((p) -> p.equals(md.start) || p.equals(md.end) || (p.i > 0 && p.i < md.maxDepth - 1 && p.j > 0 && p.j < md.maxLength - 1))
+                .toList();
         }
 
         @Override
@@ -50,35 +66,6 @@ public class Day24 {
             if (j != other.j)
                 return false;
             return true;
-        }
-    }
-
-    private static class Player {
-        private Position pos;
-        private int minutes;
-
-        private Player(Position pos, int minutes) {
-            this.pos = pos;
-            this.minutes = minutes;
-        }
-
-        private List<Position> neighbours(MapData md) {
-
-            final Position[] neighbours = new Position[]{
-                new Position(pos.i - 1, pos.j),
-                new Position(pos.i, pos.j + 1),
-                new Position(pos.i + 1, pos.j),
-                new Position(pos.i, pos.j - 1)
-            };
-
-            return Arrays.stream(neighbours)
-                .filter((p) -> p.equals(md.start) || p.equals(md.end) || (p.i > 0 && p.i < md.maxDepth - 1 && p.j > 0 && p.j < md.maxLength - 1))
-                .toList();
-        }
-
-        @Override
-        public String toString() {
-            return "Player [pos=" + pos + ", minutes=" + minutes + "]";
         }
     }
 
@@ -180,8 +167,8 @@ public class Day24 {
         }
     }
 
-    private static boolean canMove(Position pos, List<Blizzard> blizzards) {
-        return !blizzards.stream().anyMatch((b) -> b.pos.equals(pos));
+    private static boolean occupiedByBlizzard(Position pos, List<Blizzard> blizzards) {
+        return blizzards.stream().anyMatch((b) -> b.pos.equals(pos));
     }
 
     private static List<Blizzard> buildBlizzards(List<String> data) {
@@ -209,47 +196,60 @@ public class Day24 {
         return copy;
     }
 
-    private static int traverseValley(Player player, List<Blizzard> blizzards, MapData md, Set<State> visited) {
-        final State state = new State(player.minutes, new Position(player.pos.i, player.pos.j));
-        if (visited.contains(state)) {
-            return Integer.MAX_VALUE;
-        }
-
-        visited.add(state);
-
-        if (player.pos.equals(md.end)) {
-            return player.minutes;
-        }
-
-        if (blizzards.stream().anyMatch((b) -> b.pos.equals(player.pos))) {
-            return Integer.MAX_VALUE;
-        }
-
-        for (final Blizzard b : blizzards) {
-            b.move(md.maxDepth, md.maxLength);
-        }
-
-        int result = Integer.MAX_VALUE;
-        for (final Position n : player.neighbours(md)) {
-            if (canMove(n, blizzards)) {
-                result = Math.min(result, traverseValley(new Player(n, ++player.minutes), copyBlizzards(blizzards), md, visited));
-            }
-        }
-
-        result = Math.min(result, traverseValley(new Player(player.pos, ++player.minutes), blizzards, md, visited));
-        return result;
-    }
-
     public static int findFewestMinutesToReachGoal(List<String> data) {
         final int maxDepth = data.size();
         final int maxLength = data.get(0).length();
-        final List<Blizzard> blizzards = buildBlizzards(data);
         final Position start = new Position(0, data.get(0).indexOf('.'));
         final Position end = new Position(maxDepth - 1, data.get(data.size() - 1).indexOf('.'));
-        final Player player = new Player(start, 0);
         final MapData md = new MapData(start, end, maxDepth, maxLength);
+        final Map<Integer, List<Blizzard>> blizzardMap = new HashMap<>();
 
-        return traverseValley(player, blizzards, md, new HashSet<State>());
+        final Queue<State> queue = new ArrayDeque<>();
+        int minutes = 0;
+
+        final State state = new State(minutes, start);
+        queue.add(state);
+
+        blizzardMap.put(minutes, buildBlizzards(data));
+
+        while (!queue.isEmpty()) {
+            final State current = queue.poll();
+            if (current.pos.equals(end)) {
+                return current.minutes;
+            }
+
+            minutes = current.minutes + 1;
+            final List<Blizzard> blizzards;
+
+            if (!blizzardMap.containsKey(minutes)) {
+                blizzards = copyBlizzards(blizzardMap.get(minutes - 1));
+                for (final Blizzard b : blizzards) {
+                    b.move(maxDepth, maxLength);
+                }
+                blizzardMap.put(minutes, blizzards);
+            } else {
+                blizzards = blizzardMap.get(minutes);
+            }
+
+            final List<Position> neighbours = current.pos.neighbours(md);
+
+            List<Position> options = new ArrayList<>();
+            options.addAll(neighbours);
+            options.add(current.pos);
+
+            options = options.stream().filter((pos) -> !occupiedByBlizzard(pos, blizzards)).toList();
+
+            Set<State> queueSet;
+            for (final Position p : options) {
+                final State s = new State(minutes, p);
+                queueSet = queue.stream().collect(Collectors.toSet());
+                if (!queueSet.contains(s)) {
+                    queue.add(s);
+                }
+            }
+        }
+
+        throw new RuntimeException("No solution!");
     }
 
     public static void main(String[] args) throws IOException {
