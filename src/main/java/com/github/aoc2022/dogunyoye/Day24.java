@@ -196,26 +196,42 @@ public class Day24 {
         return copy;
     }
 
-    public static int findFewestMinutesToReachGoal(List<String> data) {
-        final int maxDepth = data.size();
-        final int maxLength = data.get(0).length();
-        final Position start = new Position(0, data.get(0).indexOf('.'));
-        final Position end = new Position(maxDepth - 1, data.get(data.size() - 1).indexOf('.'));
-        final MapData md = new MapData(start, end, maxDepth, maxLength);
+    // TODO very slow, requires optimisation
+    private static int traverseValley(List<String> data, MapData md, Queue<Position[]> destinations) {
+        final int maxDepth = md.maxDepth;
+        final int maxLength = md.maxLength;
         final Map<Integer, List<Blizzard>> blizzardMap = new HashMap<>();
 
         final Queue<State> queue = new ArrayDeque<>();
         int minutes = 0;
 
-        final State state = new State(minutes, start);
+        blizzardMap.put(minutes, buildBlizzards(data));
+        Position[] destination = destinations.poll();
+
+        final State state = new State(minutes, destination[0]);
         queue.add(state);
 
-        blizzardMap.put(minutes, buildBlizzards(data));
+        int result = 0;
 
         while (!queue.isEmpty()) {
             final State current = queue.poll();
-            if (current.pos.equals(end)) {
-                return current.minutes;
+
+            if (current.pos.equals(destination[1])) {
+                result += current.minutes;
+                if (destinations.isEmpty()) {
+                    return result;
+                }
+
+                queue.clear();
+
+                destination = destinations.poll();
+                queue.add(new State(0, destination[0]));
+                final List<Blizzard> blizzards = copyBlizzards(blizzardMap.get(current.minutes));
+                blizzardMap.clear();
+                minutes = 0;
+
+                blizzardMap.put(minutes, blizzards);
+                continue;
             }
 
             minutes = current.minutes + 1;
@@ -252,8 +268,33 @@ public class Day24 {
         throw new RuntimeException("No solution!");
     }
 
+    public static int findFewestMinutesToReachGoal(List<String> data) {
+        final Position start = new Position(0, data.get(0).indexOf('.'));
+        final Position end = new Position(data.size() - 1, data.get(data.size() - 1).indexOf('.'));
+        final MapData md = new MapData(start, end, data.size(), data.get(0).length());
+
+        final List<Position[]> destinations = new ArrayList<>();
+        destinations.add(new Position[]{start, end});
+
+        return traverseValley(data, md, new ArrayDeque<>(destinations));
+    }
+
+    public static int findFewestMinutesToMakeRoundtrip(List<String> data) {
+        final Position start = new Position(0, data.get(0).indexOf('.'));
+        final Position end = new Position(data.size() - 1, data.get(data.size() - 1).indexOf('.'));
+        final MapData md = new MapData(start, end, data.size(), data.get(0).length());
+
+        final List<Position[]> destinations = new ArrayList<>();
+        destinations.add(new Position[]{start, end});
+        destinations.add(new Position[]{end, start});
+        destinations.add(new Position[]{start, end});
+
+        return traverseValley(data, md, new ArrayDeque<>(destinations));
+    }
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day24.txt"));
         System.out.println("Part 1: " + findFewestMinutesToReachGoal(data));
+        System.out.println("Part 2: " + findFewestMinutesToMakeRoundtrip(data));
     }
 }
