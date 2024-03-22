@@ -7,12 +7,18 @@ import java.util.List;
 
 public class Day25 {
 
-    private static int convertSNAFUToDecimal(String snafu) {
-        int result = 0;
+    private static long convertSNAFUToDecimal(String snafu) {
+        long result = 0;
         for (int i = 0; i < snafu.length(); i++) {
             final char c = snafu.charAt(i);
             final int val;
             switch (c) {
+                case '0':
+                case '1':
+                case '2':
+                    val = Character.getNumericValue(c);
+                    break;
+
                 case '-':
                     val = -1;
                     break;
@@ -22,8 +28,7 @@ public class Day25 {
                     break;
 
                 default:
-                    val = Character.getNumericValue(c);
-                    break;
+                    throw new RuntimeException("Invalid character: " + c);
             }
 
             result += Math.pow(5, snafu.length() - 1 - i) * val;
@@ -32,15 +37,41 @@ public class Day25 {
         return result;
     }
 
-    private static String convertDecimalToSnafu(int number) {
-        return "";
+    private static String convertDecimalToSnafu(long number) {
+        long n = number;
+        String s = "";
+
+        while (n != 0) {
+            final long rem = n % 5;
+            n /= 5;
+
+            switch ((int)rem) {
+                case 0:
+                case 1:
+                case 2:
+                    s = Long.toString(rem) + s;
+                    break;
+                
+                case 3:
+                    s = "=" + s;
+                    ++n;
+                    break;
+                
+                case 4:
+                    s = "-" + s;
+                    ++n;
+                    break;
+                
+                default:
+                    throw new RuntimeException("Invalid remainder: " + rem);
+            }
+        }
+    
+        return s;
     }
 
-    public static int findSNAFUNumber(List<String> data) {
-        final int sum = data.stream().map(Day25::convertSNAFUToDecimal).mapToInt(i -> i).sum();
-        System.out.println(sum);
-
-        return 0;
+    public static String findSNAFUNumber(List<String> data) {
+        return convertDecimalToSnafu(data.stream().map(Day25::convertSNAFUToDecimal).mapToLong(i -> i).sum());
     }
     
     public static void main(String[] args) throws IOException {
