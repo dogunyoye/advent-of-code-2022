@@ -37,7 +37,7 @@ public class Day25 {
         return result;
     }
 
-    private static String convertDecimalToSnafu(long number) {
+    private static String convertDecimalToSNAFU(long number) {
         long n = number;
         String s = "";
 
@@ -71,7 +71,7 @@ public class Day25 {
     }
 
     public static String findSNAFUNumber(List<String> data) {
-        return convertDecimalToSnafu(data.stream().map(Day25::convertSNAFUToDecimal).mapToLong(i -> i).sum());
+        return convertDecimalToSNAFU(data.stream().map(Day25::convertSNAFUToDecimal).mapToLong(i -> i).sum());
     }
     
     public static void main(String[] args) throws IOException {
