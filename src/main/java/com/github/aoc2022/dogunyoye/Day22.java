@@ -179,6 +179,8 @@ public class Day22 {
         }
     }
 
+    // useful for debugging purposes
+    @SuppressWarnings("unused")
     private static void printMap(char[][] map) {
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[0].length; j++) {
