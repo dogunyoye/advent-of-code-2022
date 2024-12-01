@@ -119,8 +119,8 @@ public class Day19 {
             final long obsidianRobots = this.robots(Material.OBSIDIAN);
             final long geodeRobots = this.robots(Material.GEODE);
 
-            return new State(this.inventory.get(Material.ORE), this.inventory.get(Material.CLAY), this.inventory.get(Material.OBSIDIAN), this.inventory.get(Material.GEODE),
-            oreRobots, clayRobots, obsidianRobots, geodeRobots, this.time);
+            return new State(this.inventory.get(Material.ORE), this.inventory.get(Material.CLAY), this.inventory.get(Material.OBSIDIAN),
+                this.inventory.get(Material.GEODE), oreRobots, clayRobots, obsidianRobots, geodeRobots, this.time);
         }
 
         @Override
@@ -129,6 +129,7 @@ public class Day19 {
             int result = 1;
             result = prime * result + ((robots == null) ? 0 : robots.hashCode());
             result = prime * result + ((inventory == null) ? 0 : inventory.hashCode());
+            result = prime * result + time;
             return result;
         }
 
@@ -150,6 +151,8 @@ public class Day19 {
                 if (other.inventory != null)
                     return false;
             } else if (!inventory.equals(other.inventory))
+                return false;
+            if (time != other.time)
                 return false;
             return true;
         }
@@ -353,7 +356,6 @@ public class Day19 {
                 newFactory.robots.add(robot);
                 result = Math.max(result, findMaxGeodeProduction(newFactory, bp, timeLeft - timeNeeded, memo));
             }
-
         }
 
         maxGeodes = Math.max(maxGeodes, result);
@@ -362,10 +364,8 @@ public class Day19 {
     }
 
     public static int calculateBlueprintQualityLevel(List<String> data) {
-        final List<Blueprint> blueprints = createBlueprints(data);
         int result = 0;
-
-        for (final Blueprint bp : blueprints) {
+        for (final Blueprint bp : createBlueprints(data)) {
             result += bp.id * findMaxGeodeProduction(new Factory(), bp, 24, new HashMap<State, Integer>());
             maxGeodes = 0;
         }
