@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,10 +62,6 @@ public class Day19 {
             this.maxMaterials = maxMaterials;
         }
 
-        private List<Recipe> getRecipes() {
-            return List.of(oreRobotRecipe, clayRobotRecipe, obsidianRobotRecipe, geodeRobotRecipe);
-        }
-
         @Override
         public String toString() {
             return "Blueprint [id=" + id + ", oreRobotRecipe=" + oreRobotRecipe + ", clayRobotRecipe=" + clayRobotRecipe
@@ -77,6 +72,7 @@ public class Day19 {
     private static class Factory {
         private final List<Material> robots;
         private final Map<Material, Integer> inventory;
+        private int time = 0;
 
         private Factory() {
             this.robots = new ArrayList<>();
@@ -94,36 +90,6 @@ public class Day19 {
             this.inventory = inventory;
         }
 
-        private List<Material> canBuild(Blueprint bp) {
-            final List<Material> robots = new ArrayList<>();
-            final List<Recipe> recipes = bp.getRecipes();
-
-            recipes.forEach((r) -> {
-                boolean canBuild = true;
-                for (final Entry<Material, Integer> e : r.required.entrySet()) {
-                    if (this.inventory.get(e.getKey()) < e.getValue()) {
-                        canBuild = false;
-                        break;
-                    }
-                }
-
-                if (canBuild) {
-                    robots.add(r.material);
-                }
-            });
-
-            return robots;
-        }
-
-        private void build(Blueprint bp, Material robot) {
-            final Recipe r = bp.getRecipes().stream().filter((recipe) -> recipe.material == robot).findFirst().get();
-            for (final Entry<Material, Integer> e : r.required.entrySet()) {
-                this.inventory.put(e.getKey(), this.inventory.get(e.getKey()) - e.getValue());
-            }
-
-            this.robots.add(robot);
-        }
-
         private Factory copy() {
             final Map<Material, Integer> inventoryCopy = new HashMap<>();
             final List<Material> robotsCopy = new ArrayList<>();
@@ -137,26 +103,24 @@ public class Day19 {
                 robotsCopy.add(m);
             });
 
-            return new Factory(robotsCopy, inventoryCopy);
+            final Factory newFactory = new Factory(robotsCopy, inventoryCopy);
+            newFactory.time = this.time;
+
+            return newFactory;
         }
 
-        private void produce() {
-            this.robots.forEach((m) -> {
-                this.inventory.put(m, this.inventory.get(m) + 1);
-            });
+        private int robots(Material robot) {
+            return (int)this.robots.stream().filter((m) -> m == robot).count();
         }
 
-        private long count(Material robot) {
-            return this.robots.stream().filter((m) -> m == robot).count();
-        }
+        private State toState() {
+            final long oreRobots = this.robots(Material.ORE);
+            final long clayRobots = this.robots(Material.CLAY);
+            final long obsidianRobots = this.robots(Material.OBSIDIAN);
+            final long geodeRobots = this.robots(Material.GEODE);
 
-        private State toState(int timeLeft) {
-            final long oreRobots = this.robots.stream().filter((m) -> m == Material.ORE).count();
-            final long clayRobots = this.robots.stream().filter((m) -> m == Material.CLAY).count();
-            final long obsidianRobots = this.robots.stream().filter((m) -> m == Material.OBSIDIAN).count();
-            final long geodeRobots = this.robots.stream().filter((m) -> m == Material.GEODE).count();
-
-            return new State(inventory, oreRobots, clayRobots, obsidianRobots, geodeRobots, timeLeft);
+            return new State(this.inventory.get(Material.ORE), this.inventory.get(Material.CLAY), this.inventory.get(Material.OBSIDIAN), this.inventory.get(Material.GEODE),
+            oreRobots, clayRobots, obsidianRobots, geodeRobots, this.time);
         }
 
         @Override
@@ -192,33 +156,42 @@ public class Day19 {
     }
 
     private static class State {
-        private final Map<Material, Integer> inventory;
+        private final long ore;
+        private final long clay;
+        private final long obsidian;
+        private final long geode;
         private final long oreRobots;
         private final long clayRobots;
         private final long obsidianRobots;
         private final long geodeRobots;
-        private final int timeLeft;
+        private final int timeSpent;
 
-        public State(Map<Material, Integer> inventory, long oreRobots, long clayRobots, long obsidianRobots,
-                long geodeRobots, int timeLeft) {
-            this.inventory = inventory;
+        public State(long ore, long clay, long obsidian, long geode, long oreRobots, long clayRobots, long obsidianRobots,
+                long geodeRobots, int timeSpent) {
+            this.ore = ore;
+            this.clay = clay;
+            this.obsidian = obsidian;
+            this.geode = geode;
             this.oreRobots = oreRobots;
             this.clayRobots = clayRobots;
             this.obsidianRobots = obsidianRobots;
             this.geodeRobots = geodeRobots;
-            this.timeLeft = timeLeft;
+            this.timeSpent = timeSpent;
         }
 
         @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((inventory == null) ? 0 : inventory.hashCode());
+            result = prime * result + (int) (ore ^ (ore >>> 32));
+            result = prime * result + (int) (clay ^ (clay >>> 32));
+            result = prime * result + (int) (obsidian ^ (obsidian >>> 32));
+            result = prime * result + (int) (geode ^ (geode >>> 32));
             result = prime * result + (int) (oreRobots ^ (oreRobots >>> 32));
             result = prime * result + (int) (clayRobots ^ (clayRobots >>> 32));
             result = prime * result + (int) (obsidianRobots ^ (obsidianRobots >>> 32));
             result = prime * result + (int) (geodeRobots ^ (geodeRobots >>> 32));
-            result = prime * result + timeLeft;
+            result = prime * result + timeSpent;
             return result;
         }
 
@@ -231,10 +204,13 @@ public class Day19 {
             if (getClass() != obj.getClass())
                 return false;
             State other = (State) obj;
-            if (inventory == null) {
-                if (other.inventory != null)
-                    return false;
-            } else if (!inventory.equals(other.inventory))
+            if (ore != other.ore)
+                return false;
+            if (clay != other.clay)
+                return false;
+            if (obsidian != other.obsidian)
+                return false;
+            if (geode != other.geode)
                 return false;
             if (oreRobots != other.oreRobots)
                 return false;
@@ -244,9 +220,16 @@ public class Day19 {
                 return false;
             if (geodeRobots != other.geodeRobots)
                 return false;
-            if (timeLeft != other.timeLeft)
+            if (timeSpent != other.timeSpent)
                 return false;
             return true;
+        }
+
+        @Override
+        public String toString() {
+            return "State [ore=" + ore + ", clay=" + clay + ", obsidian=" + obsidian + ", geode=" + geode
+                    + ", oreRobots=" + oreRobots + ", clayRobots=" + clayRobots + ", obsidianRobots=" + obsidianRobots
+                    + ", geodeRobots=" + geodeRobots + ", timeSpent=" + timeSpent + "]";
         }
     }
 
@@ -279,51 +262,111 @@ public class Day19 {
             return factory.inventory.get(Material.GEODE);
         }
 
-        final long geodeRobots = factory.robots.stream().filter((r) -> r == Material.GEODE).count();
-        final int currentGeodes = factory.inventory.get(Material.GEODE);
-        final long maxPossibleGeodes = currentGeodes + (geodeRobots * timeLeft) + ((timeLeft * (timeLeft - 1))) / 2;
-
-        if (maxPossibleGeodes <= maxGeodes) {
-            return 0;
-        }
-
-        final State state = factory.toState(timeLeft);
+        final State state = factory.toState();
         final Integer cached = memo.get(state);
 
         if (cached != null) {
             return cached;
         }
 
-        int result = factory.inventory.get(Material.GEODE);
-        final List<Material> canBuild = factory.canBuild(bp);
+        final int geodeRobots = factory.robots(Material.GEODE);
+        final int currentGeodes = factory.inventory.get(Material.GEODE);
+        final int maxPossibleGeodes = currentGeodes + (geodeRobots * timeLeft) + ((timeLeft * (timeLeft - 1))) / 2;
 
-        for (final Material robot : canBuild) {
-            if (robot == Material.GEODE || factory.count(robot) < bp.maxMaterials.get(robot)) {
-                final Factory newFactory = factory.copy();
-                newFactory.produce();
-                newFactory.build(bp, robot);
-                result = Math.max(result, findMaxGeodeProduction(newFactory, bp, timeLeft - 1, memo));
-            }
+        if (maxPossibleGeodes <= maxGeodes) {
+            return 0;
         }
 
-        factory.produce();
-        result = Math.max(result, findMaxGeodeProduction(factory, bp, timeLeft - 1, memo));
+        int result = factory.inventory.get(Material.GEODE);
+
+        for (Material robot : Material.values()) {
+            int oreNeeded = 0;
+            int clayNeeded = 0;
+            int obsidianNeeded = 0;
+
+            switch(robot) {
+                case CLAY:
+                    oreNeeded = bp.clayRobotRecipe.required.get(Material.ORE);
+                    break;
+                case GEODE:
+                    oreNeeded = bp.geodeRobotRecipe.required.get(Material.ORE);
+                    obsidianNeeded = bp.geodeRobotRecipe.required.get(Material.OBSIDIAN);
+                    break;
+                case OBSIDIAN:
+                    oreNeeded = bp.obsidianRobotRecipe.required.get(Material.ORE);
+                    clayNeeded = bp.obsidianRobotRecipe.required.get(Material.CLAY);
+                    break;
+                case ORE:
+                    oreNeeded = bp.oreRobotRecipe.required.get(Material.ORE);
+                    break;
+                default:
+                    throw new RuntimeException("Unknown robot: " + robot);
+            }
+
+            if (robot != Material.GEODE && factory.robots(robot) >= bp.maxMaterials.get(robot)) {
+                continue;
+            }
+
+            final int oreRobots = factory.robots(Material.ORE);
+            final int clayRobots = factory.robots(Material.CLAY);
+            final int obsidianRobots = factory.robots(Material.OBSIDIAN);
+
+            // how much time do we need to gather enough materials to build the robot?
+
+            if (robot == Material.OBSIDIAN && (clayNeeded > 0 && clayRobots == 0)) {
+                continue;
+            }
+
+            if (robot == Material.GEODE && (obsidianNeeded > 0 && obsidianRobots == 0)) {
+                continue;
+            }
+
+            int oreTimeNeeded = 0;
+            int clayTimeNeeded = 0;
+            int obsidianTimeNeeded = 0;
+
+            final int oreCount = factory.inventory.get(Material.ORE);
+            final int clayCount = factory.inventory.get(Material.CLAY);
+            final int obsidianCount = factory.inventory.get(Material.OBSIDIAN);
+
+            if (oreCount < oreNeeded) {
+                oreTimeNeeded = (int) Math.ceil(((double)(oreNeeded - oreCount) / oreRobots));
+            }
+
+            if (clayCount < clayNeeded) {
+                clayTimeNeeded = (int) Math.ceil(((double)(clayNeeded - clayCount) / clayRobots));
+            }
+
+            if (obsidianCount < obsidianNeeded) {
+                obsidianTimeNeeded = (int) Math.ceil(((double)(obsidianNeeded - obsidianCount) / obsidianRobots));
+            }
+
+            final int timeNeeded = Collections.max(List.of(oreTimeNeeded, clayTimeNeeded, obsidianTimeNeeded)) + 1;
+            final Factory newFactory = factory.copy();
+
+            if (timeNeeded <= timeLeft) {
+                newFactory.time += timeNeeded;
+                newFactory.inventory.put(Material.ORE, (newFactory.inventory.get(Material.ORE) - oreNeeded) + (timeNeeded * newFactory.robots(Material.ORE)));
+                newFactory.inventory.put(Material.CLAY, (newFactory.inventory.get(Material.CLAY) - clayNeeded) + (timeNeeded * newFactory.robots(Material.CLAY)));
+                newFactory.inventory.put(Material.OBSIDIAN, (newFactory.inventory.get(Material.OBSIDIAN) - obsidianNeeded) + (timeNeeded * newFactory.robots(Material.OBSIDIAN)));
+                newFactory.inventory.put(Material.GEODE, (newFactory.inventory.get(Material.GEODE) + (timeNeeded * newFactory.robots(Material.GEODE))));
+                newFactory.robots.add(robot);
+                result = Math.max(result, findMaxGeodeProduction(newFactory, bp, timeLeft - timeNeeded, memo));
+            }
+
+        }
 
         maxGeodes = Math.max(maxGeodes, result);
-
-        memo.put(factory.toState(timeLeft), result);
+        memo.put(factory.toState(), result);
         return result;
     }
 
     public static int calculateBlueprintQualityLevel(List<String> data) {
         final List<Blueprint> blueprints = createBlueprints(data);
-        final Map<State, Integer> memo = new HashMap<>();
         int result = 0;
 
         for (final Blueprint bp : blueprints) {
-            final Factory factory = new Factory();
-            result += bp.id * findMaxGeodeProduction(factory, bp, 24, memo);
-            memo.clear();
+            result += bp.id * findMaxGeodeProduction(new Factory(), bp, 24, new HashMap<State, Integer>());
             maxGeodes = 0;
         }
 
