@@ -3,6 +3,7 @@ package com.github.aoc2022.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +108,8 @@ public class Day21 {
     private static long evaluateMonkeyWithEqualityCheck(String name,
         Map<String, Long> solved,
         Map<String, Evaluation> evaluate,
-        long[] rootNumbers) {
+        long[] rootNumbers,
+        BitSet invalidSolution) {
 
         final Long value = solved.get(name);
         if (value != null) {
@@ -115,8 +117,8 @@ public class Day21 {
         }
 
         final Evaluation e = evaluate.get(name);
-        final long left = evaluateMonkeyWithEqualityCheck(e.leftMonkey, solved, evaluate, rootNumbers);
-        final long right = evaluateMonkeyWithEqualityCheck(e.rightMonkey, solved, evaluate, rootNumbers);
+        final long left = evaluateMonkeyWithEqualityCheck(e.leftMonkey, solved, evaluate, rootNumbers, invalidSolution);
+        final long right = evaluateMonkeyWithEqualityCheck(e.rightMonkey, solved, evaluate, rootNumbers, invalidSolution);
 
         long result = 0;
         switch(e.op) {
@@ -130,6 +132,9 @@ public class Day21 {
                 result = left * right;
                 break;
             case DIVIDE:
+                if (left % right != 0) {
+                    invalidSolution.set(0);
+                }
                 result = left / right;
                 break;
             case EQUALITY:
@@ -154,14 +159,18 @@ public class Day21 {
 
     public static long findNumberToPassRootEqualityCheck(List<String> data) {
 
-        long low = 0;
+        long low = 0L;
         long high = 1000000000000000L;
 
+        boolean directionDetermined = false;
+        boolean invert = false;
+
         while (low <= high) {
-            final long mid = low  + (Math.round((high - low) / 2));
+            final long mid = low  + ((high - low) / 2L);
 
             final Map<String, Long> solved = new HashMap<>();
             final Map<String, Evaluation> evaluate = new HashMap<>();
+            final BitSet invalidSolution = new BitSet();
             parseMonkeys(data, solved, evaluate);
     
             final Evaluation rootEvaluation = evaluate.get("root");
@@ -170,14 +179,38 @@ public class Day21 {
             solved.put("humn", mid);
             final long[] rootNumbers = new long[2];
 
-            evaluateMonkeyWithEqualityCheck("root", solved, evaluate, rootNumbers);
+            evaluateMonkeyWithEqualityCheck("root", solved, evaluate, rootNumbers, invalidSolution);
+
+            if (!directionDetermined) {
+                if (rootNumbers[0] > rootNumbers[1]) {
+                    invert = true;
+                }       
+                directionDetermined = true;
+            }
 
             if (rootNumbers[0] > rootNumbers[1]) {
-                low = mid + 1;
+                if (invert) {
+                    high = mid - 1;
+                } else {
+                    low = mid + 1;
+                }
             } else if (rootNumbers[0] < rootNumbers[1]) {
-                high = mid - 1;
+                if (invert) {
+                    low = mid + 1;
+                } else {
+                    high = mid - 1;
+                }
             } else {
-                return mid;
+                if (invalidSolution.get(0)) {
+                    // this solution is invalid due to non-integer division
+                    if (invert) {
+                        low = mid;
+                    } else {
+                        high = mid;
+                    }
+                } else {
+                    return mid;
+                }
             }
         }
 

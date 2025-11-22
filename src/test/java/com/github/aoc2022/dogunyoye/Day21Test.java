@@ -27,4 +27,9 @@ public class Day21Test {
     public void testPartOne() throws IOException {
         assertEquals(152, Day21.findRootMonkeyNumber(data));
     }
+
+    @Test
+    public void testPartTwo() throws IOException {
+        assertEquals(301, Day21.findNumberToPassRootEqualityCheck(data));
+    }
 }
