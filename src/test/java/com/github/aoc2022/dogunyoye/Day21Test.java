@@ -1,14 +1,14 @@
 package com.github.aoc2022.dogunyoye;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 // no test for part 2 as my solution works for my input
 // but not the test case..
@@ -18,7 +18,7 @@ public class Day21Test {
 
     private static List<String> data;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         data = Files.readAllLines(Path.of("src/test/resources/Day21TestInput.txt"));
     }

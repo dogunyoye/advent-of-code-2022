@@ -1,18 +1,18 @@
 package com.github.aoc2022.dogunyoye;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class Day17Test {
     private static String commands ;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         commands = Files.readAllLines(Path.of("src/test/resources/Day17TestInput.txt")).get(0);
     }

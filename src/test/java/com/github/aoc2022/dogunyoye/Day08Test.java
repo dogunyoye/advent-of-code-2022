@@ -1,14 +1,14 @@
 package com.github.aoc2022.dogunyoye;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.github.aoc2022.dogunyoye.Day08.Tree;
 
@@ -19,7 +19,7 @@ public class Day08Test {
 
     private static Tree[][] map;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         grid = Files.readAllLines(Path.of("src/test/resources/Day08TestInput.txt"));
         length = grid.get(0).length();

@@ -1,20 +1,20 @@
 package com.github.aoc2022.dogunyoye;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class Day09Test {
 
     private static List<String> instructions;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
         instructions = Files.readAllLines(Path.of("src/test/resources/Day09TestInput.txt"));
     }

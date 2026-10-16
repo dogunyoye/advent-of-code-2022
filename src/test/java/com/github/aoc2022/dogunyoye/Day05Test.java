@@ -1,14 +1,14 @@
 package com.github.aoc2022.dogunyoye;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.github.aoc2022.dogunyoye.Day05.Cargo;
 import com.github.aoc2022.dogunyoye.Day05.CrateMover9000;
@@ -20,7 +20,7 @@ public class Day05Test {
     private static List<Cargo> cargos;
     private static List<Instruction> instructions;
     
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         List[] cargosAndInstructions = Day05.parseCargoAndInstructions(Files.readAllLines(Path.of("src/test/resources/Day05TestInput.txt")), 3);
         cargos = cargosAndInstructions[0];

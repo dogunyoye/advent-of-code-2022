@@ -1,13 +1,13 @@
 package com.github.aoc2022.dogunyoye;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.github.aoc2022.dogunyoye.Day11.Monkey;
 
@@ -45,7 +45,7 @@ public class Day11Test {
         return monkeys;
     }
 
-    @Before
+    @BeforeEach
     public void before() throws IOException {
         monkeys = createMonkeys();
     }
