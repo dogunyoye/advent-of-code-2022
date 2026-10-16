@@ -1,3 +1,23 @@
+# Maven build output
 target/
+
+# IDE / editor
 .vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Personal Advent of Code puzzle inputs (each user fetches their own).
+# Sample inputs used by tests are kept under src/test/resources/.
 src/main/resources/*.txt

@@ -1,0 +1,12 @@
+# Normalize line endings to LF on checkin; checkout as-is.
+# This prevents the whole repo showing as modified due to CRLF/LF churn.
+* text=auto eol=lf
+
+*.java text diff=java
+*.xml text
+*.md text
+*.txt text
+*.json text
+
+# Maven wrapper / binaries
+*.jar binary
