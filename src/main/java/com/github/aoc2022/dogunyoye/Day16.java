@@ -66,7 +66,9 @@ public class Day16 {
         if (!visited.contains(valve) && flowRate > 0) {
             final Set<Valve> newVisited = new HashSet<>(visited);
             newVisited.add(valve);
-            result = Math.max(result, ((timeLeft - 1) * flowRate) + traverseValves(valveName, newVisited, timeLeft - 1, numberOfPlayers));
+            result = Math.max(
+                    result,
+                    ((timeLeft - 1) * flowRate) + traverseValves(valveName, newVisited, timeLeft - 1, numberOfPlayers));
         }
 
         for (final String child : valvesMap.get(valve)) {
