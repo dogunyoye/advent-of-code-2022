@@ -204,11 +204,12 @@ public class Day21 {
                 }
             } else {
                 if (invalidSolution.get(0)) {
-                    // this solution is invalid due to non-integer division
+                    // this solution is invalid due to non-integer division,
+                    // so mid is proven wrong and excluded to guarantee progress
                     if (invert) {
-                        low = mid;
+                        low = mid + 1;
                     } else {
-                        high = mid;
+                        high = mid - 1;
                     }
                 } else {
                     return mid;

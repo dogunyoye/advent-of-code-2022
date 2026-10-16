@@ -9,10 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-// no test for part 2 as my solution works for my input
-// but not the test case..
-// in order to get it to work for the test case, I have to
-// flip the comparison symbols in the binary search. Very strange
 public class Day21Test {
 
     private static List<String> data;
