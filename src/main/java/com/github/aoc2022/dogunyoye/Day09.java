@@ -77,21 +77,21 @@ public class Day09 {
         if (head.getPosition().equals(tail.getPosition())) {
             return true;
         }
-    
+
         final int currentX = tail.getPosition().x;
         final int currentY = tail.getPosition().y;
 
-        final Position north = new Position(currentX, currentY+1);
-        final Position northEast = new Position(currentX+1, currentY+1);
-        final Position east = new Position(currentX+1, currentY);
-        final Position southEast = new Position(currentX+1, currentY-1);
-        final Position south = new Position(currentX, currentY-1);
-        final Position southWest = new Position(currentX-1, currentY-1);
-        final Position west = new Position(currentX-1, currentY);
-        final Position northWest = new Position(currentX-1, currentY+1);
+        final Position north = new Position(currentX, currentY + 1);
+        final Position northEast = new Position(currentX + 1, currentY + 1);
+        final Position east = new Position(currentX + 1, currentY);
+        final Position southEast = new Position(currentX + 1, currentY - 1);
+        final Position south = new Position(currentX, currentY - 1);
+        final Position southWest = new Position(currentX - 1, currentY - 1);
+        final Position west = new Position(currentX - 1, currentY);
+        final Position northWest = new Position(currentX - 1, currentY + 1);
 
         final Position[] neighbours =
-            new Position[]{north, northEast, east, southEast, south, southWest, west, northWest};
+                new Position[] {north, northEast, east, southEast, south, southWest, west, northWest};
 
         for (final Position n : neighbours) {
             if (n.equals(head.getPosition())) {
@@ -115,7 +115,7 @@ public class Day09 {
 
         if (dY == 0) {
             if (headX > tailX) {
-                return "R"; 
+                return "R";
             } else {
                 return "L";
             }
@@ -145,39 +145,39 @@ public class Day09 {
     }
 
     private static void step(Knot k, String direction) {
-        switch(direction) {
-            // east
+        switch (direction) {
+                // east
             case "R":
                 k.getPosition().x++;
                 break;
-            // north
+                // north
             case "U":
-                k.getPosition().y++; 
+                k.getPosition().y++;
                 break;
-            // north-east
+                // north-east
             case "RU":
                 k.getPosition().x++;
                 k.getPosition().y++;
                 break;
-            // north-west
+                // north-west
             case "LU":
                 k.getPosition().x--;
                 k.getPosition().y++;
                 break;
-            // west
+                // west
             case "L":
                 k.getPosition().x--;
                 break;
-            // south
+                // south
             case "D":
                 k.getPosition().y--;
                 break;
-            // south-west
+                // south-west
             case "LD":
                 k.getPosition().x--;
                 k.getPosition().y--;
                 break;
-            // south-east
+                // south-east
             case "DR":
                 k.getPosition().x++;
                 k.getPosition().y--;
@@ -203,7 +203,7 @@ public class Day09 {
         while (steps != 0) {
             step(knots[0], direction);
             for (int i = 1; i < knots.length; i++) {
-                final Knot head = knots[i-1];
+                final Knot head = knots[i - 1];
                 final Knot tail = knots[i];
                 while (!isHeadNeighbour(head, tail)) {
                     final String tailDirection = whichDirection(head, tail);
@@ -225,7 +225,7 @@ public class Day09 {
         final Set<Position> path = new HashSet<>();
         path.add(new Position(0, 0));
 
-        while(instructions.hasNext()) {
+        while (instructions.hasNext()) {
             final String[] parts = instructions.next().split(" ");
             final String direction = parts[0];
             final int steps = Integer.parseInt(parts[1]);
@@ -244,7 +244,7 @@ public class Day09 {
         final Set<Position> path = new HashSet<>();
         path.add(new Position(0, 0));
 
-        while(instructions.hasNext()) {
+        while (instructions.hasNext()) {
             final String[] parts = instructions.next().split(" ");
             final String direction = parts[0];
             final int steps = Integer.parseInt(parts[1]);
@@ -253,7 +253,7 @@ public class Day09 {
 
         return path.size();
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> instructions = Files.readAllLines(Path.of("src/main/resources/Day09.txt"));
 

@@ -34,17 +34,12 @@ public class Day20 {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
             Node other = (Node) obj;
-            if (value != other.value)
-                return false;
-            if (idx != other.idx)
-                return false;
+            if (value != other.value) return false;
+            if (idx != other.idx) return false;
             return true;
         }
     }
@@ -70,11 +65,11 @@ public class Day20 {
                 final long value = node.value;
 
                 final int foundIdx = list.indexOf(node);
-    
+
                 if (foundIdx == -1) {
                     throw new RuntimeException("Did not find index of the node");
                 }
-    
+
                 long insertionIdx = ((foundIdx + value) % (nodes.size() - 1));
                 if (insertionIdx == foundIdx) {
                     continue;
@@ -85,7 +80,7 @@ public class Day20 {
                 }
 
                 list.remove(foundIdx);
-                list.add((int)insertionIdx, node);
+                list.add((int) insertionIdx, node);
             }
 
             mixes--;

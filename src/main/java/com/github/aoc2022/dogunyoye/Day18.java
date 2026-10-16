@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class Day18 {
 
-    private static record Position (int x, int y, int z) { }
+    private static record Position(int x, int y, int z) {}
 
     static class Cube {
         Position pos;
@@ -34,9 +34,12 @@ public class Day18 {
             final int y = this.pos.y();
             final int z = this.pos.z();
 
-            if (otherPos.equals(new Position(x+1, y, z)) || otherPos.equals(new Position(x-1, y, z)) ||
-                otherPos.equals(new Position(x, y+1, z)) || otherPos.equals(new Position(x, y-1, z)) ||
-                otherPos.equals(new Position(x, y, z+1)) || otherPos.equals(new Position(x, y, z-1))) {
+            if (otherPos.equals(new Position(x + 1, y, z))
+                    || otherPos.equals(new Position(x - 1, y, z))
+                    || otherPos.equals(new Position(x, y + 1, z))
+                    || otherPos.equals(new Position(x, y - 1, z))
+                    || otherPos.equals(new Position(x, y, z + 1))
+                    || otherPos.equals(new Position(x, y, z - 1))) {
                 return true;
             }
 
@@ -87,27 +90,27 @@ public class Day18 {
         final List<Position> neighbours = new ArrayList<>();
 
         if ((x - 1) >= (bounds[0] - padding)) {
-            neighbours.add(new Position(x-1, y, z));
+            neighbours.add(new Position(x - 1, y, z));
         }
 
         if ((x + 1) <= (bounds[1] + padding)) {
-            neighbours.add(new Position(x+1, y, z));
+            neighbours.add(new Position(x + 1, y, z));
         }
 
         if ((y - 1) >= (bounds[2] - padding)) {
-            neighbours.add(new Position(x, y-1, z));
+            neighbours.add(new Position(x, y - 1, z));
         }
 
         if ((y + 1) <= (bounds[3] + padding)) {
-            neighbours.add(new Position(x, y+1, z));
+            neighbours.add(new Position(x, y + 1, z));
         }
 
         if ((z - 1) >= (bounds[4] - padding)) {
-            neighbours.add(new Position(x, y, z-1));
+            neighbours.add(new Position(x, y, z - 1));
         }
 
         if ((z + 1) <= (bounds[5] + padding)) {
-            neighbours.add(new Position(x, y, z+1));
+            neighbours.add(new Position(x, y, z + 1));
         }
 
         return neighbours;
@@ -142,7 +145,7 @@ public class Day18 {
             cubePositions.add(p);
         }
 
-        final int[] bounds = new int[]{minX, maxX, minY, maxY, minZ, maxZ};
+        final int[] bounds = new int[] {minX, maxX, minY, maxY, minZ, maxZ};
 
         final Position start = new Position(0, 0, 0);
         final Queue<Position> q = new ArrayDeque<>();

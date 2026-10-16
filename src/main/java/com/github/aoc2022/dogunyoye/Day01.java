@@ -51,9 +51,11 @@ public class Day01 {
     }
 
     public static int sumTopThreeCalories(List<Elf> elves) {
-        return elves.get(0).getCalories() + elves.get(1).getCalories() + elves.get(2).getCalories();
+        return elves.get(0).getCalories()
+                + elves.get(1).getCalories()
+                + elves.get(2).getCalories();
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> allCalories = Files.readAllLines(Path.of("src/main/resources/Day01.txt"));
         final List<Elf> elfCalories = getElfCalories(allCalories);

@@ -72,14 +72,14 @@ public class Day04 {
             final String[] e1Sections = sections[0].split("-");
             final String[] e2Sections = sections[1].split("-");
             final ElfPair ep = new ElfPair(
-                Integer.parseInt(e1Sections[0]), Integer.parseInt(e1Sections[1]),
-                Integer.parseInt(e2Sections[0]), Integer.parseInt(e2Sections[1]));
+                    Integer.parseInt(e1Sections[0]), Integer.parseInt(e1Sections[1]),
+                    Integer.parseInt(e2Sections[0]), Integer.parseInt(e2Sections[1]));
             eps.add(ep);
         }
 
         return eps;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<ElfPair> eps = createElfPairs(Files.readAllLines(Path.of("src/main/resources/Day04.txt")));
 

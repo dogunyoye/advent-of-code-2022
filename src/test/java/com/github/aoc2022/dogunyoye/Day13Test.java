@@ -7,13 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONArray;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class Day13Test {
-    
+
     private static List<String> packetData;
     private static List<JSONArray> orderedPackets;
 

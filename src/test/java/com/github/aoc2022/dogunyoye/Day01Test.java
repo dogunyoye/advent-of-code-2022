@@ -2,15 +2,13 @@ package com.github.aoc2022.dogunyoye;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.github.aoc2022.dogunyoye.Day01.Elf;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import com.github.aoc2022.dogunyoye.Day01.Elf;
 
 public class Day01Test {
 

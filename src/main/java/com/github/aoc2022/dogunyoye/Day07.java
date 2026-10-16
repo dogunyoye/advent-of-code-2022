@@ -16,7 +16,7 @@ public class Day07 {
     private static final int SPACE_NEEDED = 30000000;
     private static final Directory ROOT_DIR = new Directory("/", null);
 
-    private static record File (String name, int size) { }
+    private static record File(String name, int size) {}
 
     private static class Directory {
         private final String name;
@@ -75,7 +75,8 @@ public class Day07 {
 
         @Override
         public String toString() {
-            return "Directory name: " + this.name + " Files: " + files.toString() + " Directories: " + directories.toString();
+            return "Directory name: " + this.name + " Files: " + files.toString() + " Directories: "
+                    + directories.toString();
         }
 
         @Override
@@ -150,7 +151,7 @@ public class Day07 {
             String[] parts = output.next().split(" ");
             final String command = parts[1];
 
-            switch(command) {
+            switch (command) {
                 case "ls":
                     String next = output.next();
                     while (next != null && !next.startsWith("$")) {
@@ -177,10 +178,10 @@ public class Day07 {
                     if (dirName.equals("..")) {
                         return;
                     }
-                    
+
                     parseCommandsAndOutput(output, currentDir.getDirectory(dirName));
                     break;
-                
+
                 case "cd":
                     final String dName = parts[2];
                     if (dName.equals("..")) {
@@ -197,16 +198,20 @@ public class Day07 {
     }
 
     public static int findSumOfDirectoriesLessThan100000() {
-        return fileSystem.stream().filter(d -> d.calculateSize() <= 100000)
-            .collect(Collectors.summingInt(Directory::size));
+        return fileSystem.stream()
+                .filter(d -> d.calculateSize() <= 100000)
+                .collect(Collectors.summingInt(Directory::size));
     }
 
     public static int findSmallestDirectoryToDelete() {
         final int remaining = TOTAL_SPACE - ROOT_DIR.size;
         final int toClear = SPACE_NEEDED - remaining;
 
-        return fileSystem.stream().filter(d -> d.calculateSize() >= toClear)
-            .min((d1, d2) -> Integer.compare(d1.size(), d2.size())).get().size();
+        return fileSystem.stream()
+                .filter(d -> d.calculateSize() >= toClear)
+                .min((d1, d2) -> Integer.compare(d1.size(), d2.size()))
+                .get()
+                .size();
     }
 
     static void traverseFileSystem(List<String> output) {

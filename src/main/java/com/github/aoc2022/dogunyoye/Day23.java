@@ -33,22 +33,22 @@ public class Day23 {
         private List<Character> neighbours(Map<Position, Character> map) {
             final List<Character> neighbours = new ArrayList<>();
 
-            //NW
-            neighbours.add(getValue(i-1, j-1, map));
-            //N
-            neighbours.add(getValue(i-1, j, map));
-            //NE
-            neighbours.add(getValue(i-1, j+1, map));
-            //E
-            neighbours.add(getValue(i, j+1, map));
-            //SE
-            neighbours.add(getValue(i+1, j+1, map));
-            //S
-            neighbours.add(getValue(i+1, j, map));
-            //SW
-            neighbours.add(getValue(i+1, j-1, map));
-            //W
-            neighbours.add(getValue(i, j-1, map));
+            // NW
+            neighbours.add(getValue(i - 1, j - 1, map));
+            // N
+            neighbours.add(getValue(i - 1, j, map));
+            // NE
+            neighbours.add(getValue(i - 1, j + 1, map));
+            // E
+            neighbours.add(getValue(i, j + 1, map));
+            // SE
+            neighbours.add(getValue(i + 1, j + 1, map));
+            // S
+            neighbours.add(getValue(i + 1, j, map));
+            // SW
+            neighbours.add(getValue(i + 1, j - 1, map));
+            // W
+            neighbours.add(getValue(i, j - 1, map));
 
             return neighbours;
         }
@@ -64,17 +64,12 @@ public class Day23 {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
             Position other = (Position) obj;
-            if (i != other.i)
-                return false;
-            if (j != other.j)
-                return false;
+            if (i != other.i) return false;
+            if (j != other.j) return false;
             return true;
         }
 
@@ -95,7 +90,10 @@ public class Day23 {
     }
 
     private static List<Position> findElves(Map<Position, Character> map) {
-        return new ArrayList<>(map.entrySet().stream().filter((e) -> e.getValue() == '#').map((e) -> e.getKey()).toList());
+        return new ArrayList<>(map.entrySet().stream()
+                .filter((e) -> e.getValue() == '#')
+                .map((e) -> e.getKey())
+                .toList());
     }
 
     private static Map<Position, Character> buildMap(List<String> data) {
@@ -112,7 +110,8 @@ public class Day23 {
 
     public static int simulateElfMovement(List<String> data, boolean isPartOne) {
         final Map<Position, Character> map = buildMap(data);
-        final List<Direction> order = new ArrayList<>(Arrays.asList(Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST));
+        final List<Direction> order =
+                new ArrayList<>(Arrays.asList(Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST));
         int rounds = 0;
 
         while (true) {
@@ -187,10 +186,10 @@ public class Day23 {
         final List<Position> elves = findElves(map);
 
         elves.sort((p1, p2) -> Integer.compare(p1.i, p2.i));
-        final int[] minMaxDepth = new int[]{elves.get(0).i, elves.get(elves.size() - 1).i};
+        final int[] minMaxDepth = new int[] {elves.get(0).i, elves.get(elves.size() - 1).i};
 
         elves.sort((p1, p2) -> Integer.compare(p1.j, p2.j));
-        final int[] minMaxLength = new int[]{elves.get(0).j, elves.get(elves.size() - 1).j};
+        final int[] minMaxLength = new int[] {elves.get(0).j, elves.get(elves.size() - 1).j};
 
         int result = 0;
         for (int i = minMaxDepth[0]; i <= minMaxDepth[1]; i++) {
@@ -212,7 +211,7 @@ public class Day23 {
     public static int findRoundWhereNoElvesMove(List<String> data) {
         return simulateElfMovement(data, false);
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day23.txt"));
         System.out.println("Part 1: " + findEmptyGroundTilesAfter10Rounds(data));

@@ -91,7 +91,7 @@ public class Day14 {
             }
         }
 
-        return new int[]{minX, minY, maxX, maxY};
+        return new int[] {minX, minY, maxX, maxY};
     }
 
     static char[][] createCave(List<String> walls, int[] bounds, int length, int depth) {
@@ -107,9 +107,9 @@ public class Day14 {
 
         for (final String line : walls) {
             final String[] parts = line.split(" -> ");
-            for (int i = 0; i < parts.length-1; i++) {
+            for (int i = 0; i < parts.length - 1; i++) {
                 final String[] p1 = parts[i].split(",");
-                final String[] p2 = parts[i+1].split(",");
+                final String[] p2 = parts[i + 1].split(",");
 
                 final int p1X = Integer.parseInt(p1[0]);
                 final int p1Y = Integer.parseInt(p1[1]);
@@ -147,15 +147,15 @@ public class Day14 {
     static char[][] createExtendedCave(List<String> walls, int[] bounds, int length, int depth) {
         final char[][] cave = createCave(walls, bounds, length, depth);
         for (int i = 0; i < length; i++) {
-            cave[depth-1][i] = '#';
+            cave[depth - 1][i] = '#';
         }
 
         return cave;
     }
 
     private static Point checkLeft(char[][] cave, int depth, Point location) {
-        int x = location.x-1;
-        int y = location.y+1;
+        int x = location.x - 1;
+        int y = location.y + 1;
 
         // past the floor
         if (y >= depth) {
@@ -171,8 +171,8 @@ public class Day14 {
     }
 
     private static Point checkRight(char[][] cave, int depth, Point location) {
-        int x = location.x+1;
-        int y = location.y+1;
+        int x = location.x + 1;
+        int y = location.y + 1;
 
         // past the floor
         if (y >= depth) {
@@ -227,7 +227,7 @@ public class Day14 {
     }
 
     public static int findUnitsOfSandAtRestBeforeOverflow(char[][] cave, int[] bounds, int length, int depth) {
-        final int x = 500-bounds[0] + 500;
+        final int x = 500 - bounds[0] + 500;
         final Point dropPoint = new Point(x, 0);
 
         int count = 0;
@@ -244,7 +244,7 @@ public class Day14 {
     }
 
     public static int findUnitsOfSandWhenOriginIsAtRest(char[][] extendedCave, int[] bounds, int length, int depth) {
-        final int x = 500-bounds[0] + 500;
+        final int x = 500 - bounds[0] + 500;
         final Point dropPoint = new Point(x, 0);
 
         int count = 0;
@@ -261,7 +261,7 @@ public class Day14 {
             count++;
         }
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> walls = Files.readAllLines(Path.of("src/main/resources/Day14.txt"));
         final int[] bounds = findMinMax(walls);
@@ -271,7 +271,7 @@ public class Day14 {
         final int minX = bounds[0];
         final int length = maxX - minX + 1000;
         int depth = maxY + 1;
-    
+
         final char[][] wallmap = createCave(walls, bounds, length, depth);
         System.out.println("Part 1: " + findUnitsOfSandAtRestBeforeOverflow(wallmap, bounds, length, depth));
 

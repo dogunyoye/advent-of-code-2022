@@ -15,7 +15,7 @@ public class Day02 {
         SCISSORS;
 
         private Item predator() {
-            switch(this) {
+            switch (this) {
                 case ROCK:
                     return PAPER;
                 case PAPER:
@@ -28,7 +28,7 @@ public class Day02 {
         }
 
         private Item prey() {
-            switch(this) {
+            switch (this) {
                 case ROCK:
                     return SCISSORS;
                 case PAPER:
@@ -77,7 +77,7 @@ public class Day02 {
             return 3 + scoreMap.get(myItem);
         }
 
-        if(myItem.prey() == opponentItem) {
+        if (myItem.prey() == opponentItem) {
             return 6 + scoreMap.get(myItem);
         }
 
@@ -86,7 +86,7 @@ public class Day02 {
 
     private static int playRockPaperScissorsStrategy(Item opponentItem, Result result) {
         Item myItem;
-        switch(result) {
+        switch (result) {
             case WIN:
                 myItem = opponentItem.predator();
                 return 6 + scoreMap.get(myItem);
@@ -123,7 +123,7 @@ public class Day02 {
 
         return score;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> game = Files.readAllLines(Path.of("src/main/resources/Day02.txt"));
 

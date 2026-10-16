@@ -32,7 +32,7 @@ public class Day08 {
             this.scenicScore = scenicScore;
         }
     }
-    
+
     static Tree[][] buildMap(List<String> grid, int length, int depth) {
         final Tree[][] map = new Tree[depth][length];
         for (int i = 0; i < depth; i++) {
@@ -53,22 +53,22 @@ public class Day08 {
         final int y = tree.y;
 
         final List<Tree> northernTrees = new ArrayList<>();
-        for (int i = x-1; i >= 0; i--) {
+        for (int i = x - 1; i >= 0; i--) {
             northernTrees.add(map[i][y]);
         }
 
         final List<Tree> westernTrees = new ArrayList<>();
-        for (int i = y-1; i >= 0; i--) {
+        for (int i = y - 1; i >= 0; i--) {
             westernTrees.add(map[x][i]);
         }
 
         final List<Tree> southernTrees = new ArrayList<>();
-        for (int i = x+1; i < depth; i++) {
+        for (int i = x + 1; i < depth; i++) {
             southernTrees.add(map[i][y]);
         }
 
         final List<Tree> easternTrees = new ArrayList<>();
-        for (int i = y+1; i < length; i++) {
+        for (int i = y + 1; i < length; i++) {
             easternTrees.add(map[x][i]);
         }
 
@@ -94,8 +94,10 @@ public class Day08 {
         final int height = tree.getHeight();
         final List<List<Tree>> surroundingTrees = getSurroundingTrees(map, depth, length, tree);
 
-        return (checkTrees(surroundingTrees.get(0), height) || checkTrees(surroundingTrees.get(1), height) || 
-                checkTrees(surroundingTrees.get(2), height) || checkTrees(surroundingTrees.get(3), height));
+        return (checkTrees(surroundingTrees.get(0), height)
+                || checkTrees(surroundingTrees.get(1), height)
+                || checkTrees(surroundingTrees.get(2), height)
+                || checkTrees(surroundingTrees.get(3), height));
     }
 
     private static int calculateScenicScore(List<Tree> trees, int height) {
@@ -114,29 +116,31 @@ public class Day08 {
         final int height = tree.getHeight();
         final List<List<Tree>> surroundingTrees = getSurroundingTrees(map, depth, length, tree);
 
-        final int score = calculateScenicScore(surroundingTrees.get(0), height) * calculateScenicScore(surroundingTrees.get(1), height) *
-                          calculateScenicScore(surroundingTrees.get(2), height) * calculateScenicScore(surroundingTrees.get(3), height);
+        final int score = calculateScenicScore(surroundingTrees.get(0), height)
+                * calculateScenicScore(surroundingTrees.get(1), height)
+                * calculateScenicScore(surroundingTrees.get(2), height)
+                * calculateScenicScore(surroundingTrees.get(3), height);
 
         tree.setScenicScore(score);
     }
 
     static int findNumberOfVisibleTrees(Tree[][] map, int length, int depth) {
         int sum = 0;
-        for (int i = 1; i <= depth-2; i++) {
-            for (int j = 1; j <= length-2; j++) {
+        for (int i = 1; i <= depth - 2; i++) {
+            for (int j = 1; j <= length - 2; j++) {
                 if (isTreeVisible(map, depth, length, map[i][j])) {
                     sum++;
                 }
             }
         }
 
-        return sum + (length*2) + ((depth-2)*2);
+        return sum + (length * 2) + ((depth - 2) * 2);
     }
 
     static int findBestScenicScore(Tree[][] map, int length, int depth) {
         int bestScore = 0;
-        for (int i = 1; i <= depth-2; i++) {
-            for (int j = 1; j <= length-2; j++) {
+        for (int i = 1; i <= depth - 2; i++) {
+            for (int j = 1; j <= length - 2; j++) {
                 calculateScenicScore(map, depth, length, map[i][j]);
                 bestScore = Math.max(bestScore, map[i][j].getScenicScore());
             }

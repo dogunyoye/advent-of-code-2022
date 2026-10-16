@@ -9,8 +9,9 @@ import java.util.List;
 
 public class Day15 {
 
-    private static record Bound (long min, long max) { }
-    private static record Position (int x, int y) { }
+    private static record Bound(long min, long max) {}
+
+    private static record Position(int x, int y) {}
 
     static class Sensor {
         private Position pos;
@@ -18,8 +19,7 @@ public class Day15 {
 
         Sensor(Position pos, Position beaconPos) {
             this.pos = pos;
-            this.manhattanDistance =
-                Math.abs(pos.x - beaconPos.x) + Math.abs(pos.y - beaconPos.y);
+            this.manhattanDistance = Math.abs(pos.x - beaconPos.x) + Math.abs(pos.y - beaconPos.y);
         }
 
         Bound getBound(int y) {
@@ -84,14 +84,14 @@ public class Day15 {
                 @Override
                 public int compare(Bound o1, Bound o2) {
                     return Long.compare(o1.min(), o2.min());
-                } 
+                }
             });
 
             for (int j = 0; j < bounds.size() - 1; j++) {
                 final long max = bounds.get(j).max();
-                final long min = bounds.get(j+1).min();
+                final long min = bounds.get(j + 1).min();
 
-                if (!withinBounds(min-1, bounds)) {
+                if (!withinBounds(min - 1, bounds)) {
                     final long diff = min - max;
                     // diff of 2 => there is a point in between
                     // the max of one bound and the min of the other

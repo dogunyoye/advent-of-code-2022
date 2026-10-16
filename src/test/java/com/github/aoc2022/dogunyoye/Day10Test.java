@@ -3,18 +3,16 @@ package com.github.aoc2022.dogunyoye;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.aoc2022.dogunyoye.Day10.CPU;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.github.aoc2022.dogunyoye.Day10.CPU;
-
 public class Day10Test {
-    
+
     private static List<String> program;
     private static CPU cpu;
 

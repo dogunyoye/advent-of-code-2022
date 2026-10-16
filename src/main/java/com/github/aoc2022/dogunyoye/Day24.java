@@ -31,16 +31,15 @@ public class Day24 {
 
         private List<Position> neighbours(MapData md) {
 
-            final Position[] neighbours = new Position[]{
-                new Position(i - 1, j),
-                new Position(i, j + 1),
-                new Position(i + 1, j),
-                new Position(i, j - 1)
+            final Position[] neighbours = new Position[] {
+                new Position(i - 1, j), new Position(i, j + 1), new Position(i + 1, j), new Position(i, j - 1)
             };
 
             return Arrays.stream(neighbours)
-                .filter((p) -> p.equals(md.start) || p.equals(md.end) || (p.i > 0 && p.i < md.maxDepth - 1 && p.j > 0 && p.j < md.maxLength - 1))
-                .toList();
+                    .filter((p) -> p.equals(md.start)
+                            || p.equals(md.end)
+                            || (p.i > 0 && p.i < md.maxDepth - 1 && p.j > 0 && p.j < md.maxLength - 1))
+                    .toList();
         }
 
         @Override
@@ -54,17 +53,12 @@ public class Day24 {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
             Position other = (Position) obj;
-            if (i != other.i)
-                return false;
-            if (j != other.j)
-                return false;
+            if (i != other.i) return false;
+            if (j != other.j) return false;
             return true;
         }
     }
@@ -149,20 +143,14 @@ public class Day24 {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
             State other = (State) obj;
-            if (minutes != other.minutes)
-                return false;
+            if (minutes != other.minutes) return false;
             if (pos == null) {
-                if (other.pos != null)
-                    return false;
-            } else if (!pos.equals(other.pos))
-                return false;
+                if (other.pos != null) return false;
+            } else if (!pos.equals(other.pos)) return false;
             return true;
         }
     }
@@ -253,7 +241,9 @@ public class Day24 {
             options.addAll(neighbours);
             options.add(current.pos);
 
-            options = options.stream().filter((pos) -> !occupiedByBlizzard(pos, blizzards)).toList();
+            options = options.stream()
+                    .filter((pos) -> !occupiedByBlizzard(pos, blizzards))
+                    .toList();
 
             Set<State> queueSet;
             for (final Position p : options) {
@@ -270,24 +260,26 @@ public class Day24 {
 
     public static int findFewestMinutesToReachGoal(List<String> data) {
         final Position start = new Position(0, data.get(0).indexOf('.'));
-        final Position end = new Position(data.size() - 1, data.get(data.size() - 1).indexOf('.'));
+        final Position end =
+                new Position(data.size() - 1, data.get(data.size() - 1).indexOf('.'));
         final MapData md = new MapData(start, end, data.size(), data.get(0).length());
 
         final List<Position[]> destinations = new ArrayList<>();
-        destinations.add(new Position[]{start, end});
+        destinations.add(new Position[] {start, end});
 
         return traverseValley(data, md, new ArrayDeque<>(destinations));
     }
 
     public static int findFewestMinutesToMakeRoundtrip(List<String> data) {
         final Position start = new Position(0, data.get(0).indexOf('.'));
-        final Position end = new Position(data.size() - 1, data.get(data.size() - 1).indexOf('.'));
+        final Position end =
+                new Position(data.size() - 1, data.get(data.size() - 1).indexOf('.'));
         final MapData md = new MapData(start, end, data.size(), data.get(0).length());
 
         final List<Position[]> destinations = new ArrayList<>();
-        destinations.add(new Position[]{start, end});
-        destinations.add(new Position[]{end, start});
-        destinations.add(new Position[]{start, end});
+        destinations.add(new Position[] {start, end});
+        destinations.add(new Position[] {end, start});
+        destinations.add(new Position[] {start, end});
 
         return traverseValley(data, md, new ArrayDeque<>(destinations));
     }

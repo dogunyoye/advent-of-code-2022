@@ -35,13 +35,13 @@ public class Day03 {
         return Arrays.stream(charArr).collect(Collectors.toSet());
     }
 
-    private static record Rucksack (String items) {
+    private static record Rucksack(String items) {
 
         private char findDup() {
             final int length = items.length();
 
-            final String firstCompartment = items.substring(0, length/2);
-            final String secondCompartment = items.substring(length/2, length);
+            final String firstCompartment = items.substring(0, length / 2);
+            final String secondCompartment = items.substring(length / 2, length);
 
             final Set<Character> s = createItemSet(firstCompartment);
 
@@ -78,13 +78,13 @@ public class Day03 {
         Set<Character> s3;
 
         final List<Character> badges = new ArrayList<>();
-        
-        for (int i = 0; i < rucksacks.size(); i+=3) {
-            s1 = createItemSet(rucksacks.get(i));
-            s2 = createItemSet(rucksacks.get(i+1));
-            s3 = createItemSet(rucksacks.get(i+2));
 
-            if(s1.retainAll(s2) && s1.retainAll(s3)) {
+        for (int i = 0; i < rucksacks.size(); i += 3) {
+            s1 = createItemSet(rucksacks.get(i));
+            s2 = createItemSet(rucksacks.get(i + 1));
+            s3 = createItemSet(rucksacks.get(i + 2));
+
+            if (s1.retainAll(s2) && s1.retainAll(s3)) {
                 badges.add(s1.stream().findFirst().get());
             }
         }
@@ -96,7 +96,7 @@ public class Day03 {
 
         return score;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> rucksacks = Files.readAllLines(Path.of("src/main/resources/Day03.txt"));
 

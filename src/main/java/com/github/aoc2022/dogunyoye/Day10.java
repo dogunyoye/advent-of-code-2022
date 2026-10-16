@@ -52,7 +52,7 @@ public class Day10 {
             drawPixel();
 
             this.cycles++;
-            switch(this.cycles) {
+            switch (this.cycles) {
                 case 20:
                 case 60:
                 case 100:
@@ -65,16 +65,16 @@ public class Day10 {
                     break;
             }
 
-            if (this.cycles%40 == 0) {
+            if (this.cycles % 40 == 0) {
                 reset();
             }
         }
 
         private void drawPixel() {
 
-            if (this.currentPos == spritePixelOnePos ||
-                this.currentPos == spritePixelTwoPos ||
-                this.currentPos == spritePixelThreePos) {
+            if (this.currentPos == spritePixelOnePos
+                    || this.currentPos == spritePixelTwoPos
+                    || this.currentPos == spritePixelThreePos) {
                 this.crtImage += '@';
             } else {
                 this.crtImage += '.';
@@ -89,7 +89,7 @@ public class Day10 {
                 final String[] parts = program.next().split(" ");
                 final String instruction = parts[0];
 
-                switch(instruction) {
+                switch (instruction) {
                     case "noop":
                         noop();
                         break;
@@ -118,13 +118,13 @@ public class Day10 {
         String line = "";
         for (int i = 0; i < cpu.crtImage.length(); i++) {
             line += cpu.crtImage.charAt(i);
-            if ((i+1) % 40 == 0) {
+            if ((i + 1) % 40 == 0) {
                 System.out.println(line);
                 line = "";
             }
         }
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> program = Files.readAllLines(Path.of("src/main/resources/Day10.txt"));
         final CPU cpu = new CPU();

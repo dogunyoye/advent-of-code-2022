@@ -51,7 +51,7 @@ public class Day21 {
                 final String rightMonkey = operationParts[2];
                 Operation op = null;
 
-                switch(operation) {
+                switch (operation) {
                     case "+":
                         op = Operation.ADD;
                         break;
@@ -84,7 +84,7 @@ public class Day21 {
         final long right = evaluateMonkey(e.rightMonkey, solved, evaluate);
 
         long result = 0;
-        switch(e.op) {
+        switch (e.op) {
             case ADD:
                 result = left + right;
                 break;
@@ -105,11 +105,12 @@ public class Day21 {
         return result;
     }
 
-    private static long evaluateMonkeyWithEqualityCheck(String name,
-        Map<String, Long> solved,
-        Map<String, Evaluation> evaluate,
-        long[] rootNumbers,
-        BitSet invalidSolution) {
+    private static long evaluateMonkeyWithEqualityCheck(
+            String name,
+            Map<String, Long> solved,
+            Map<String, Evaluation> evaluate,
+            long[] rootNumbers,
+            BitSet invalidSolution) {
 
         final Long value = solved.get(name);
         if (value != null) {
@@ -118,10 +119,11 @@ public class Day21 {
 
         final Evaluation e = evaluate.get(name);
         final long left = evaluateMonkeyWithEqualityCheck(e.leftMonkey, solved, evaluate, rootNumbers, invalidSolution);
-        final long right = evaluateMonkeyWithEqualityCheck(e.rightMonkey, solved, evaluate, rootNumbers, invalidSolution);
+        final long right =
+                evaluateMonkeyWithEqualityCheck(e.rightMonkey, solved, evaluate, rootNumbers, invalidSolution);
 
         long result = 0;
-        switch(e.op) {
+        switch (e.op) {
             case ADD:
                 result = left + right;
                 break;
@@ -166,13 +168,13 @@ public class Day21 {
         boolean invert = false;
 
         while (low <= high) {
-            final long mid = low  + ((high - low) / 2L);
+            final long mid = low + ((high - low) / 2L);
 
             final Map<String, Long> solved = new HashMap<>();
             final Map<String, Evaluation> evaluate = new HashMap<>();
             final BitSet invalidSolution = new BitSet();
             parseMonkeys(data, solved, evaluate);
-    
+
             final Evaluation rootEvaluation = evaluate.get("root");
             rootEvaluation.op = Operation.EQUALITY;
 
@@ -184,7 +186,7 @@ public class Day21 {
             if (!directionDetermined) {
                 if (rootNumbers[0] > rootNumbers[1]) {
                     invert = true;
-                }       
+                }
                 directionDetermined = true;
             }
 

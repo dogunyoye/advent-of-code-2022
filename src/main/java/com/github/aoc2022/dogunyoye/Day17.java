@@ -14,7 +14,7 @@ public class Day17 {
 
     public static final long PART_TWO_ROCKS = 1000000000000L;
 
-    private static record State (String shapeName, int windDirectionIdx) { }
+    private static record State(String shapeName, int windDirectionIdx) {}
 
     private static class Point {
         int x;
@@ -36,17 +36,12 @@ public class Day17 {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
             Point other = (Point) obj;
-            if (x != other.x)
-                return false;
-            if (y != other.y)
-                return false;
+            if (x != other.x) return false;
+            if (y != other.y) return false;
             return true;
         }
     }
@@ -66,7 +61,7 @@ public class Day17 {
         long select() {
             final long idx = num % arr.length;
             ++num;
-            return arr[(int)idx];
+            return arr[(int) idx];
         }
     }
 
@@ -81,7 +76,7 @@ public class Day17 {
             final int toSelect = num % 5;
             ++this.num;
 
-            switch(toSelect) {
+            switch (toSelect) {
                 case 1:
                     return createHorizontalRock();
                 case 2:
@@ -115,7 +110,7 @@ public class Day17 {
 
             final List<Point> newPosition = new ArrayList<>();
             for (Point p : body) {
-                newPosition.add(new Point(p.x - 3 + (int)level, p.y));
+                newPosition.add(new Point(p.x - 3 + (int) level, p.y));
             }
             this.body = newPosition;
         }
@@ -216,11 +211,11 @@ public class Day17 {
         //  #
         // ###
         //  #
-    
+
         body.add(new Point(-2, 3));
-        
+
         for (int i = 0; i < 3; i++) {
-            body.add(new Point(-1, i+2));
+            body.add(new Point(-1, i + 2));
         }
 
         body.add(new Point(0, 3));
@@ -239,7 +234,7 @@ public class Day17 {
         body.add(new Point(-1, 4));
 
         for (int i = 0; i < 3; i++) {
-            body.add(new Point(0, i+2));
+            body.add(new Point(0, i + 2));
         }
 
         return new Rock("⅃", body);
@@ -329,7 +324,7 @@ public class Day17 {
                 long result = Math.abs(highestRockLevel);
                 final long startIdx = initial - dropped;
 
-                final Cycle c = new Cycle(historyOfHeights, (int)(initial - existing.get(0)));
+                final Cycle c = new Cycle(historyOfHeights, (int) (initial - existing.get(0)));
 
                 final long wholeCycles = startIdx / interval;
                 final long remainder = (startIdx % interval);
@@ -352,7 +347,7 @@ public class Day17 {
 
             while (true) {
                 final int i = idx % length;
-                switch(commands.charAt(i)) {
+                switch (commands.charAt(i)) {
                     case '>':
                         rock.moveRight(settledRocks);
                         break;
@@ -383,7 +378,8 @@ public class Day17 {
     }
 
     public static void main(String[] args) throws IOException {
-        final String commands = Files.readAllLines(Path.of("src/main/resources/Day17.txt")).get(0);
+        final String commands =
+                Files.readAllLines(Path.of("src/main/resources/Day17.txt")).get(0);
 
         System.out.println("Part 1: " + findGreatestHeightFromSimulatingFallingRocks(commands, 2022));
         System.out.println("Part 2: " + findGreatestHeightFromSimulatingFallingRocks(commands, PART_TWO_ROCKS));

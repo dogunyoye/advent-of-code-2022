@@ -22,7 +22,7 @@ public class Day25 {
                 case '-':
                     val = -1;
                     break;
-                
+
                 case '=':
                     val = -2;
                     break;
@@ -45,35 +45,38 @@ public class Day25 {
             final long rem = n % 5;
             n /= 5;
 
-            switch ((int)rem) {
+            switch ((int) rem) {
                 case 0:
                 case 1:
                 case 2:
                     s = Long.toString(rem) + s;
                     break;
-                
+
                 case 3:
                     s = "=" + s;
                     ++n;
                     break;
-                
+
                 case 4:
                     s = "-" + s;
                     ++n;
                     break;
-                
+
                 default:
                     throw new RuntimeException("Invalid remainder: " + rem);
             }
         }
-    
+
         return s;
     }
 
     public static String findSNAFUNumber(List<String> data) {
-        return convertDecimalToSNAFU(data.stream().map(Day25::convertSNAFUToDecimal).mapToLong(i -> i).sum());
+        return convertDecimalToSNAFU(data.stream()
+                .map(Day25::convertSNAFUToDecimal)
+                .mapToLong(i -> i)
+                .sum());
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> data = Files.readAllLines(Path.of("src/main/resources/Day25.txt"));
         System.out.println("Part 1: " + findSNAFUNumber(data));

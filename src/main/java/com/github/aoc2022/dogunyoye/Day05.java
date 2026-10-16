@@ -3,9 +3,9 @@ package com.github.aoc2022.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -22,8 +22,8 @@ public class Day05 {
         public void move(List<Cargo> cargos, List<Instruction> instructions) {
             for (final Instruction ins : instructions) {
                 for (int i = 0; i < ins.numToMove; i++) {
-                    final Cargo src = cargos.get(ins.srcCargo-1);
-                    final Cargo dst = cargos.get(ins.dstCargo-1);
+                    final Cargo src = cargos.get(ins.srcCargo - 1);
+                    final Cargo dst = cargos.get(ins.dstCargo - 1);
                     dst.add(src.remove());
                 }
             }
@@ -36,17 +36,17 @@ public class Day05 {
             for (final Instruction ins : instructions) {
                 final int numberToRemove = ins.numToMove;
                 for (int i = 0; i < numberToRemove; i++) {
-                    final Cargo src = cargos.get(ins.srcCargo-1);
-                    final Cargo dst = cargos.get(ins.dstCargo-1);
-    
+                    final Cargo src = cargos.get(ins.srcCargo - 1);
+                    final Cargo dst = cargos.get(ins.dstCargo - 1);
+
                     final char[] crates = new char[numberToRemove];
                     for (int j = 0; j < numberToRemove; j++) {
                         crates[j] = src.remove();
                     }
-                    for (int k = crates.length-1; k >= 0; k--) {
+                    for (int k = crates.length - 1; k >= 0; k--) {
                         dst.add(crates[k]);
                     }
-    
+
                     if (numberToRemove > 1) {
                         break;
                     }
@@ -55,7 +55,7 @@ public class Day05 {
         }
     }
 
-    static record Cargo (Stack<Character> stack) {
+    static record Cargo(Stack<Character> stack) {
 
         void add(char item) {
             this.stack.push(item);
@@ -74,7 +74,7 @@ public class Day05 {
         }
     }
 
-    static record Instruction (int numToMove, int srcCargo, int dstCargo) { }
+    static record Instruction(int numToMove, int srcCargo, int dstCargo) {}
 
     private static Map<Integer, Integer> indexToCargoId;
 
@@ -114,7 +114,8 @@ public class Day05 {
 
         for (final String line : cargoAndInstructions) {
             if (line.isEmpty()) {
-                final List<String> instructions = cargoAndInstructions.subList(currIdx+1, cargoAndInstructions.size());
+                final List<String> instructions =
+                        cargoAndInstructions.subList(currIdx + 1, cargoAndInstructions.size());
                 for (final String instructionLine : instructions) {
                     final String[] s = instructionLine.split(" ");
                     ins.add(new Instruction(Integer.parseInt(s[1]), Integer.parseInt(s[3]), Integer.parseInt(s[5])));
@@ -129,7 +130,7 @@ public class Day05 {
             for (int i = 0; i < line.length(); i++) {
                 if (Character.isLetter(line.charAt(i))) {
                     final int crateId = indexToCargoId.get(i);
-                    cargos.get(crateId-1).add(line.charAt(i));
+                    cargos.get(crateId - 1).add(line.charAt(i));
                 }
             }
 
@@ -141,7 +142,7 @@ public class Day05 {
 
         return l;
     }
-    
+
     public static void main(String args[]) throws IOException {
         final List<String> cargoAndInstructions = Files.readAllLines(Path.of("src/main/resources/Day05.txt"));
         final List[] p1 = parseCargoAndInstructions(cargoAndInstructions, 9);

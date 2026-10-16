@@ -18,7 +18,7 @@ public class Day22 {
         SOUTH(1),
         WEST(2),
         NORTH(3);
-        
+
         private int value;
 
         private Direction(int value) {
@@ -26,9 +26,15 @@ public class Day22 {
         }
 
         private Direction turn(char direction) {
-            return switch(direction) {
-                case 'L' -> Arrays.stream(Direction.values()).filter((d) -> d.value == Math.floorMod(this.value - 1, 4)).findFirst().get();
-                case 'R' -> Arrays.stream(Direction.values()).filter((d) -> d.value == Math.floorMod(this.value + 1, 4)).findFirst().get();
+            return switch (direction) {
+                case 'L' -> Arrays.stream(Direction.values())
+                        .filter((d) -> d.value == Math.floorMod(this.value - 1, 4))
+                        .findFirst()
+                        .get();
+                case 'R' -> Arrays.stream(Direction.values())
+                        .filter((d) -> d.value == Math.floorMod(this.value + 1, 4))
+                        .findFirst()
+                        .get();
                 default -> throw new RuntimeException("invalid direction: " + direction);
             };
         }
@@ -57,25 +63,17 @@ public class Day22 {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
             CubeFace other = (CubeFace) obj;
-            if (id != other.id)
-                return false;
+            if (id != other.id) return false;
             if (points == null) {
-                if (other.points != null)
-                    return false;
-            } else if (!points.equals(other.points))
-                return false;
+                if (other.points != null) return false;
+            } else if (!points.equals(other.points)) return false;
             if (borders == null) {
-                if (other.borders != null)
-                    return false;
-            } else if (!borders.equals(other.borders))
-                return false;
+                if (other.borders != null) return false;
+            } else if (!borders.equals(other.borders)) return false;
             return true;
         }
     }
@@ -105,17 +103,12 @@ public class Day22 {
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
+            if (this == obj) return true;
+            if (obj == null) return false;
+            if (getClass() != obj.getClass()) return false;
             Position other = (Position) obj;
-            if (i != other.i)
-                return false;
-            if (j != other.j)
-                return false;
+            if (i != other.i) return false;
+            if (j != other.j) return false;
             return true;
         }
     }
@@ -203,7 +196,7 @@ public class Day22 {
     private static Map<Integer, int[]> getMapLengthBounds(char[][] map) {
         final Map<Integer, int[]> lengthBounds = new HashMap<>();
         for (int i = 0; i < map.length; i++) {
-            final int[] bounds = new int[]{-1, -1};
+            final int[] bounds = new int[] {-1, -1};
             lengthBounds.put(i, bounds);
             int currIdx = 0;
             for (int j = 0; j < map[0].length; j++) {
@@ -223,7 +216,7 @@ public class Day22 {
     private static Map<Integer, int[]> getMapDepthBounds(char[][] map) {
         final Map<Integer, int[]> depthBounds = new HashMap<>();
         for (int i = 0; i < map[0].length; i++) {
-            final int[] bounds = new int[]{-1, -1};
+            final int[] bounds = new int[] {-1, -1};
             depthBounds.put(i, bounds);
             int currIdx = 0;
             for (int j = 0; j < map.length; j++) {
@@ -297,7 +290,10 @@ public class Day22 {
     }
 
     private static CubeFace findFace(Map<CubeFace, List<Transform>> cubeMap, Position pos) {
-        return cubeMap.keySet().stream().filter((c) -> c.points.contains(pos)).findFirst().get();
+        return cubeMap.keySet().stream()
+                .filter((c) -> c.points.contains(pos))
+                .findFirst()
+                .get();
     }
 
     private static int findIndexOfPosition(CubeFace cf, Position pos, Direction dir) {
@@ -342,47 +338,53 @@ public class Day22 {
         final CubeFace c5 = buildCubeFace(++id, 100, 149, 50, 99);
         final CubeFace c6 = buildCubeFace(++id, 150, 199, 0, 49);
 
-        cubeMap.put(c1, List.of(
-                            new Transform(c2.borders.get(Direction.WEST.value), Direction.EAST),
-                            new Transform(c3.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(reverse(c4.borders.get(Direction.WEST.value)), Direction.EAST),
-                            new Transform(c6.borders.get(Direction.WEST.value), Direction.EAST)
-        ));
+        cubeMap.put(
+                c1,
+                List.of(
+                        new Transform(c2.borders.get(Direction.WEST.value), Direction.EAST),
+                        new Transform(c3.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(reverse(c4.borders.get(Direction.WEST.value)), Direction.EAST),
+                        new Transform(c6.borders.get(Direction.WEST.value), Direction.EAST)));
 
-        cubeMap.put(c2, List.of(
-                            new Transform(reverse(c5.borders.get(Direction.EAST.value)), Direction.WEST),
-                            new Transform(c3.borders.get(Direction.EAST.value), Direction.WEST),
-                            new Transform(c1.borders.get(Direction.EAST.value), Direction.WEST),
-                            new Transform(c6.borders.get(Direction.SOUTH.value), Direction.NORTH)
-        ));
+        cubeMap.put(
+                c2,
+                List.of(
+                        new Transform(reverse(c5.borders.get(Direction.EAST.value)), Direction.WEST),
+                        new Transform(c3.borders.get(Direction.EAST.value), Direction.WEST),
+                        new Transform(c1.borders.get(Direction.EAST.value), Direction.WEST),
+                        new Transform(c6.borders.get(Direction.SOUTH.value), Direction.NORTH)));
 
-        cubeMap.put(c3, List.of(
-                            new Transform(c2.borders.get(Direction.SOUTH.value), Direction.NORTH),
-                            new Transform(c5.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(c4.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(c1.borders.get(Direction.SOUTH.value), Direction.NORTH)
-        ));
+        cubeMap.put(
+                c3,
+                List.of(
+                        new Transform(c2.borders.get(Direction.SOUTH.value), Direction.NORTH),
+                        new Transform(c5.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(c4.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(c1.borders.get(Direction.SOUTH.value), Direction.NORTH)));
 
-        cubeMap.put(c4, List.of(
-                            new Transform(c5.borders.get(Direction.WEST.value), Direction.EAST),
-                            new Transform(c6.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(reverse(c1.borders.get(Direction.WEST.value)), Direction.EAST),
-                            new Transform(c3.borders.get(Direction.WEST.value), Direction.EAST)
-        ));
+        cubeMap.put(
+                c4,
+                List.of(
+                        new Transform(c5.borders.get(Direction.WEST.value), Direction.EAST),
+                        new Transform(c6.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(reverse(c1.borders.get(Direction.WEST.value)), Direction.EAST),
+                        new Transform(c3.borders.get(Direction.WEST.value), Direction.EAST)));
 
-        cubeMap.put(c5, List.of(
-                            new Transform(reverse(c2.borders.get(Direction.EAST.value)), Direction.WEST),
-                            new Transform(c6.borders.get(Direction.EAST.value), Direction.WEST),
-                            new Transform(c4.borders.get(Direction.EAST.value), Direction.WEST),
-                            new Transform(c3.borders.get(Direction.SOUTH.value), Direction.NORTH)
-        ));
+        cubeMap.put(
+                c5,
+                List.of(
+                        new Transform(reverse(c2.borders.get(Direction.EAST.value)), Direction.WEST),
+                        new Transform(c6.borders.get(Direction.EAST.value), Direction.WEST),
+                        new Transform(c4.borders.get(Direction.EAST.value), Direction.WEST),
+                        new Transform(c3.borders.get(Direction.SOUTH.value), Direction.NORTH)));
 
-        cubeMap.put(c6, List.of(
-                            new Transform(c5.borders.get(Direction.SOUTH.value), Direction.NORTH),
-                            new Transform(c2.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(c1.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(c4.borders.get(Direction.SOUTH.value), Direction.NORTH)
-        ));
+        cubeMap.put(
+                c6,
+                List.of(
+                        new Transform(c5.borders.get(Direction.SOUTH.value), Direction.NORTH),
+                        new Transform(c2.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(c1.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(c4.borders.get(Direction.SOUTH.value), Direction.NORTH)));
 
         return cubeMap;
     }
@@ -398,47 +400,53 @@ public class Day22 {
         final CubeFace c5 = buildCubeFace(++id, 8, 11, 8, 11);
         final CubeFace c6 = buildCubeFace(++id, 8, 11, 12, 15);
 
-        cubeMap.put(c1, List.of(
-                            new Transform(reverse(c6.borders.get(Direction.EAST.value)), Direction.WEST),
-                            new Transform(c4.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(c3.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(reverse(c2.borders.get(Direction.NORTH.value)), Direction.SOUTH)
-        ));
+        cubeMap.put(
+                c1,
+                List.of(
+                        new Transform(reverse(c6.borders.get(Direction.EAST.value)), Direction.WEST),
+                        new Transform(c4.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(c3.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(reverse(c2.borders.get(Direction.NORTH.value)), Direction.SOUTH)));
 
-        cubeMap.put(c2, List.of(
-                            new Transform(c3.borders.get(Direction.WEST.value), Direction.EAST),
-                            new Transform(reverse(c5.borders.get(Direction.SOUTH.value)), Direction.NORTH),
-                            new Transform(reverse(c6.borders.get(Direction.SOUTH.value)), Direction.NORTH),
-                            new Transform(reverse(c1.borders.get(Direction.NORTH.value)), Direction.SOUTH)
-        ));
+        cubeMap.put(
+                c2,
+                List.of(
+                        new Transform(c3.borders.get(Direction.WEST.value), Direction.EAST),
+                        new Transform(reverse(c5.borders.get(Direction.SOUTH.value)), Direction.NORTH),
+                        new Transform(reverse(c6.borders.get(Direction.SOUTH.value)), Direction.NORTH),
+                        new Transform(reverse(c1.borders.get(Direction.NORTH.value)), Direction.SOUTH)));
 
-        cubeMap.put(c3, List.of(
-                            new Transform(c4.borders.get(Direction.WEST.value), Direction.EAST),
-                            new Transform(reverse(c5.borders.get(Direction.WEST.value)), Direction.EAST),
-                            new Transform(c2.borders.get(Direction.EAST.value), Direction.WEST),
-                            new Transform(c1.borders.get(Direction.WEST.value), Direction.EAST)
-        ));
+        cubeMap.put(
+                c3,
+                List.of(
+                        new Transform(c4.borders.get(Direction.WEST.value), Direction.EAST),
+                        new Transform(reverse(c5.borders.get(Direction.WEST.value)), Direction.EAST),
+                        new Transform(c2.borders.get(Direction.EAST.value), Direction.WEST),
+                        new Transform(c1.borders.get(Direction.WEST.value), Direction.EAST)));
 
-        cubeMap.put(c4, List.of(
-                            new Transform(reverse(c6.borders.get(Direction.NORTH.value)), Direction.SOUTH),
-                            new Transform(c5.borders.get(Direction.NORTH.value), Direction.SOUTH),
-                            new Transform(c3.borders.get(Direction.EAST.value), Direction.WEST),
-                            new Transform(c1.borders.get(Direction.SOUTH.value), Direction.NORTH)
-        ));
+        cubeMap.put(
+                c4,
+                List.of(
+                        new Transform(reverse(c6.borders.get(Direction.NORTH.value)), Direction.SOUTH),
+                        new Transform(c5.borders.get(Direction.NORTH.value), Direction.SOUTH),
+                        new Transform(c3.borders.get(Direction.EAST.value), Direction.WEST),
+                        new Transform(c1.borders.get(Direction.SOUTH.value), Direction.NORTH)));
 
-        cubeMap.put(c5, List.of(
-                            new Transform(c6.borders.get(Direction.WEST.value), Direction.EAST),
-                            new Transform(reverse(c2.borders.get(Direction.SOUTH.value)), Direction.NORTH),
-                            new Transform(reverse(c3.borders.get(Direction.SOUTH.value)), Direction.NORTH),
-                            new Transform(c4.borders.get(Direction.SOUTH.value), Direction.NORTH)
-        ));
+        cubeMap.put(
+                c5,
+                List.of(
+                        new Transform(c6.borders.get(Direction.WEST.value), Direction.EAST),
+                        new Transform(reverse(c2.borders.get(Direction.SOUTH.value)), Direction.NORTH),
+                        new Transform(reverse(c3.borders.get(Direction.SOUTH.value)), Direction.NORTH),
+                        new Transform(c4.borders.get(Direction.SOUTH.value), Direction.NORTH)));
 
-        cubeMap.put(c6, List.of(
-                            new Transform(reverse(c1.borders.get(Direction.EAST.value)), Direction.WEST),
-                            new Transform(reverse(c2.borders.get(Direction.WEST.value)), Direction.EAST),
-                            new Transform(c5.borders.get(Direction.EAST.value), Direction.WEST),
-                            new Transform(reverse(c4.borders.get(Direction.EAST.value)), Direction.WEST)
-        ));
+        cubeMap.put(
+                c6,
+                List.of(
+                        new Transform(reverse(c1.borders.get(Direction.EAST.value)), Direction.WEST),
+                        new Transform(reverse(c2.borders.get(Direction.WEST.value)), Direction.EAST),
+                        new Transform(c5.borders.get(Direction.EAST.value), Direction.WEST),
+                        new Transform(reverse(c4.borders.get(Direction.EAST.value)), Direction.WEST)));
 
         return cubeMap;
     }
@@ -464,11 +472,11 @@ public class Day22 {
             int ii = player.pos.i;
             int jj = player.pos.j;
 
-            switch(player.dir) {
+            switch (player.dir) {
                 case EAST:
                     minBound = lengthBounds.get(player.pos.i)[0];
                     maxBound = lengthBounds.get(player.pos.i)[1];
-                    while(steps > 0) {
+                    while (steps > 0) {
                         ++jj;
                         if (jj == maxBound + 1) {
                             jj = minBound;
@@ -485,7 +493,7 @@ public class Day22 {
                 case NORTH:
                     minBound = depthBounds.get(player.pos.j)[0];
                     maxBound = depthBounds.get(player.pos.j)[1];
-                    while(steps > 0) {
+                    while (steps > 0) {
                         --ii;
                         if (ii == minBound - 1) {
                             ii = maxBound;
@@ -502,7 +510,7 @@ public class Day22 {
                 case SOUTH:
                     minBound = depthBounds.get(player.pos.j)[0];
                     maxBound = depthBounds.get(player.pos.j)[1];
-                    while(steps > 0) {
+                    while (steps > 0) {
                         ++ii;
                         if (ii == maxBound + 1) {
                             ii = minBound;
@@ -519,7 +527,7 @@ public class Day22 {
                 case WEST:
                     minBound = lengthBounds.get(player.pos.i)[0];
                     maxBound = lengthBounds.get(player.pos.i)[1];
-                    while(steps > 0) {
+                    while (steps > 0) {
                         --jj;
                         if (jj == minBound - 1) {
                             jj = maxBound;
@@ -578,7 +586,7 @@ public class Day22 {
 
                 boolean terminate = false;
 
-                switch(player.dir) {
+                switch (player.dir) {
                     case EAST:
                         maxBound = lengthBounds.get(player.pos.i)[1];
                         ++jj;

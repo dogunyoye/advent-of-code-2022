@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import org.json.JSONArray;
 
 public class Day13 {
@@ -15,7 +14,9 @@ public class Day13 {
     private static final JSONArray SIX = new JSONArray("[[6]]");
 
     private enum Result {
-        YES, NO, EQUAL
+        YES,
+        NO,
+        EQUAL
     }
 
     private static Result comparePackets(JSONArray left, JSONArray right) {
@@ -70,8 +71,8 @@ public class Day13 {
         for (int i = 0; i < packetData.size(); i += 3) {
             pairNum++;
             final JSONArray left = new JSONArray(packetData.get(i));
-            final JSONArray right = new JSONArray(packetData.get(i+1));
-            
+            final JSONArray right = new JSONArray(packetData.get(i + 1));
+
             if (comparePackets(left, right) == Result.YES) {
                 result += pairNum;
                 orderedPackets.add(left);
@@ -92,7 +93,7 @@ public class Day13 {
         packetData.sort(new Comparator<JSONArray>() {
             @Override
             public int compare(JSONArray o1, JSONArray o2) {
-                switch(comparePackets(o1, o2)) {
+                switch (comparePackets(o1, o2)) {
                     case EQUAL:
                         return 0;
                     case NO:
@@ -111,7 +112,6 @@ public class Day13 {
         return twoIndex * sixIndex;
     }
 
-    
     public static void main(String[] args) throws IOException {
         final List<String> packetData = Files.readAllLines(Path.of("src/main/resources/Day13.txt"));
         final List<JSONArray> orderedPackets = new ArrayList<>();

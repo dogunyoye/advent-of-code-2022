@@ -26,15 +26,15 @@ public class Day12 {
         WEST
     }
 
-    private static record Node (int x, int y) { }
+    private static record Node(int x, int y) {}
 
-    private static List<Node> getNeighbours(int[][]map, Node c, int length, int depth) {
+    private static List<Node> getNeighbours(int[][] map, Node c, int length, int depth) {
         final List<Node> neighbours = new ArrayList<>();
         for (Direction d : Direction.values()) {
             int x = 0;
             int y = 0;
 
-            switch(d) {
+            switch (d) {
                 case NORTH:
                     x = c.x - 1;
                     y = c.y;
@@ -111,7 +111,7 @@ public class Day12 {
         final List<Node> path = new ArrayList<>();
         Node prev = prevMap.get(end);
 
-        while(prev != null) {
+        while (prev != null) {
             path.add(prev);
             prev = prevMap.get(prev);
         }
@@ -127,12 +127,12 @@ public class Day12 {
                 char c = row.charAt(j);
                 if (c == 'S') {
                     start = new Node(i, j);
-                    heightMap[i][j] = (int)'a';
+                    heightMap[i][j] = (int) 'a';
                 } else if (c == 'E') {
                     end = new Node(i, j);
-                    heightMap[i][j] = (int)'z';
+                    heightMap[i][j] = (int) 'z';
                 } else {
-                    heightMap[i][j] = (int)c;
+                    heightMap[i][j] = (int) c;
                 }
 
                 if (c == 'a') {
@@ -147,7 +147,7 @@ public class Day12 {
     public static int fewestStepsToBestSignalLocation(int[][] heightMap, int length, int depth) {
         return bfs(heightMap, start, length, depth);
     }
-    
+
     public static int fewestStepsFromAtoBestSignalLocation(int[][] heightMap, int length, int depth) {
         int result = Integer.MAX_VALUE;
         for (final Node n : aStartingPositions) {
@@ -160,7 +160,7 @@ public class Day12 {
 
         return result;
     }
-    
+
     public static void main(String[] args) throws IOException {
         final List<String> grid = Files.readAllLines(Path.of("src/main/resources/Day12.txt"));
         final int length = grid.get(0).length();

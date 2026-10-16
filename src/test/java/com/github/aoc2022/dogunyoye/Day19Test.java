@@ -6,13 +6,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class Day19Test {
 
-    private static List<String> data ;
+    private static List<String> data;
 
     @BeforeAll
     public static void setUp() throws IOException {
