@@ -7,18 +7,22 @@ All questions can be accessed here: https://adventofcode.com/2022
 ## Prerequisites
 
 - Java 17+
-- Maven 3.8+
+- No local Maven needed: use the included wrapper (`./mvnw`).
+  Any recent Maven 3.8+ also works with plain `mvn`.
 
 ## Build and test
 
 ```sh
-mvn clean test
+./mvnw clean verify
 ```
+
+This compiles, runs the JUnit 5 test suite, and checks code formatting
+via Spotless (`./mvnw spotless:apply` reformats if needed).
 
 ## Run a solution
 
 ```sh
-mvn exec:java -Dexec.mainClass="com.github.aoc2022.dogunyoye.DayXX"
+./mvnw exec:java -Dexec.mainClass="com.github.aoc2022.dogunyoye.DayXX"
 ```
 
 where `XX` denotes the chosen day - `Day01` for the 1st day and so on.
@@ -33,6 +37,6 @@ and place it there. Sample inputs used by the tests live in
 ```text
 src/main/java/com/github/aoc2022/dogunyoye/  # one class per day (Day01-Day25)
 src/main/resources/                          # personal puzzle inputs (git-ignored)
-src/test/java/...                            # JUnit tests per day
+src/test/java/...                            # JUnit 5 tests per day
 src/test/resources/                          # sample inputs for tests
 ```

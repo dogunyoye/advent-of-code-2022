@@ -10,3 +10,6 @@
 
 # Maven wrapper / binaries
 *.jar binary
+
+# Windows batch scripts keep CRLF (as shipped upstream)
+*.cmd text eol=crlf
