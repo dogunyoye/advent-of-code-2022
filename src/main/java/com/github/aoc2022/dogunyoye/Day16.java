@@ -3,22 +3,29 @@ package com.github.aoc2022.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 public class Day16 {
 
     private static Map<Valve, List<String>> valvesMap;
     private static Map<String, Valve> nameToValveMap;
-    private static Map<State, Integer> memo;
+    private static Map<SearchState, Integer> memo;
+    private static Map<String, Map<String, Integer>> distances;
+    private static List<Valve> workingValves;
+    private static Map<String, Integer> valveBitIndex;
 
-    private static record State(String valveName, Set<Valve> visited, int timeLeft, int numberOfPlayers) {}
+    private static record SearchState(String valveName, long openedValves, int timeLeft, int numberOfPlayers) {
+    }
 
-    private static record Valve(String name, int flowRate) {}
+    private static record Valve(String name, int flowRate) {
+    }
 
     static Map<Valve, List<String>> parseValves(List<String> valves) {
         valvesMap = new HashMap<>();
@@ -41,54 +48,100 @@ public class Day16 {
             nameToValveMap.put(name, v);
         }
 
+        computeShortestPaths();
+
         return valvesMap;
     }
 
-    private static int traverseValves(String currentValve, Set<Valve> visited, int timeLeft, int numberOfPlayers) {
-        if (timeLeft == 0) {
+    private static void computeShortestPaths() {
+        distances = new HashMap<>();
+        workingValves = new ArrayList<>();
+        valveBitIndex = new HashMap<>();
+
+        for (final Valve valve : valvesMap.keySet()) {
+            if (valve.flowRate() > 0) {
+                valveBitIndex.put(valve.name(), workingValves.size());
+                workingValves.add(valve);
+            }
+        }
+
+        final List<String> origins = new ArrayList<>();
+        origins.add("AA");
+        for (final Valve valve : workingValves) {
+            origins.add(valve.name());
+        }
+
+        for (final String origin : origins) {
+            distances.put(origin, bfsDistances(origin));
+        }
+    }
+
+    private static Map<String, Integer> bfsDistances(String origin) {
+        final Map<String, Integer> dist = new HashMap<>();
+        final Queue<String> queue = new ArrayDeque<>();
+        final Set<String> seen = new HashSet<>();
+        queue.add(origin);
+        seen.add(origin);
+        dist.put(origin, 0);
+
+        while (!queue.isEmpty()) {
+            final String current = queue.poll();
+            for (final String child : valvesMap.get(nameToValveMap.get(current))) {
+                if (seen.add(child)) {
+                    dist.put(child, dist.get(current) + 1);
+                    queue.add(child);
+                }
+            }
+        }
+
+        return dist;
+    }
+
+    private static int maxPressure(String currentValve, int timeLeft, long openedValves, int numberOfPlayers) {
+        if (timeLeft <= 0) {
             if (numberOfPlayers == 2) {
-                return traverseValves("AA", visited, 26, numberOfPlayers - 1);
+                return maxPressure("AA", 26, openedValves, numberOfPlayers - 1);
             }
             return 0;
         }
 
-        final State state = new State(currentValve, visited, timeLeft, numberOfPlayers);
+        final SearchState state = new SearchState(currentValve, openedValves, timeLeft, numberOfPlayers);
         final Integer cached = memo.get(state);
-        if (cached != null && cached >= 0) {
+        if (cached != null) {
             return cached;
         }
 
-        int result = 0;
-        final Valve valve = nameToValveMap.get(currentValve);
-        final String valveName = valve.name();
-        final int flowRate = valve.flowRate();
-
-        if (!visited.contains(valve) && flowRate > 0) {
-            final Set<Valve> newVisited = new HashSet<>(visited);
-            newVisited.add(valve);
-            result = Math.max(
-                    result,
-                    ((timeLeft - 1) * flowRate) + traverseValves(valveName, newVisited, timeLeft - 1, numberOfPlayers));
+        int best = 0;
+        if (numberOfPlayers == 2) {
+            // jumps can skip past timeLeft == 0, so player 1 may stop at any
+            // point and hand the remaining valves over to player 2
+            best = maxPressure("AA", 26, openedValves, numberOfPlayers - 1);
+        }
+        for (final Valve valve : workingValves) {
+            final long bit = 1L << valveBitIndex.get(valve.name());
+            if ((openedValves & bit) != 0) {
+                continue;
+            }
+            final int cost = distances.get(currentValve).get(valve.name()) + 1;
+            if (timeLeft > cost) {
+                final int gain = (timeLeft - cost) * valve.flowRate();
+                best = Math.max(
+                        best, gain + maxPressure(valve.name(), timeLeft - cost, openedValves | bit, numberOfPlayers));
+            }
         }
 
-        for (final String child : valvesMap.get(valve)) {
-            result = Math.max(result, traverseValves(child, visited, timeLeft - 1, numberOfPlayers));
-        }
-
-        memo.put(state, result);
-        return result;
+        memo.put(state, best);
+        return best;
     }
 
     public static int findMaximumPressureIn30Mins() {
         memo = new HashMap<>();
-        return traverseValves("AA", new HashSet<>(), 30, 1);
+        return maxPressure("AA", 30, 0L, 1);
     }
 
-    // takes a long time to complete
-    // TODO: Optimise
     public static int findMaximumPressureWithElephant() {
         memo = new HashMap<>();
-        return traverseValves("AA", new HashSet<>(), 26, 2);
+        return maxPressure("AA", 26, 0L, 2);
     }
 
     public static void main(String[] args) throws IOException {

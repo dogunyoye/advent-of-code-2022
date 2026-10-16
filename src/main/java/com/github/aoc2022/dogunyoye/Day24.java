@@ -7,11 +7,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Day24 {
 
@@ -155,8 +155,33 @@ public class Day24 {
         }
     }
 
-    private static boolean occupiedByBlizzard(Position pos, List<Blizzard> blizzards) {
-        return blizzards.stream().anyMatch((b) -> b.pos.equals(pos));
+    private static Set<Position> positionsOf(List<Blizzard> blizzards) {
+        final Set<Position> positions = new HashSet<>();
+        for (final Blizzard b : blizzards) {
+            // copy: Blizzard.move mutates positions in place
+            positions.add(new Position(b.pos.i, b.pos.j));
+        }
+        return positions;
+    }
+
+    private static Set<Position> occupiedAt(
+            int minutes,
+            List<Blizzard> initialBlizzards,
+            int maxDepth,
+            int maxLength,
+            Map<Integer, List<Blizzard>> blizzardCache,
+            Map<Integer, Set<Position>> occupiedCache) {
+        for (int m = 1; m <= minutes; m++) {
+            if (!occupiedCache.containsKey(m)) {
+                final List<Blizzard> next = copyBlizzards(blizzardCache.get(m - 1));
+                for (final Blizzard b : next) {
+                    b.move(maxDepth, maxLength);
+                }
+                blizzardCache.put(m, next);
+                occupiedCache.put(m, positionsOf(next));
+            }
+        }
+        return occupiedCache.get(minutes);
     }
 
     private static List<Blizzard> buildBlizzards(List<String> data) {
@@ -184,78 +209,66 @@ public class Day24 {
         return copy;
     }
 
-    // TODO very slow, requires optimisation
-    private static int traverseValley(List<String> data, MapData md, Queue<Position[]> destinations) {
-        final int maxDepth = md.maxDepth;
-        final int maxLength = md.maxLength;
-        final Map<Integer, List<Blizzard>> blizzardMap = new HashMap<>();
-
+    private static int shortestPath(
+            Position start,
+            Position goal,
+            int startMinutes,
+            MapData md,
+            List<Blizzard> initialBlizzards,
+            Map<Integer, List<Blizzard>> blizzardCache,
+            Map<Integer, Set<Position>> occupiedCache) {
         final Queue<State> queue = new ArrayDeque<>();
-        int minutes = 0;
+        final Set<State> visited = new HashSet<>();
 
-        blizzardMap.put(minutes, buildBlizzards(data));
-        Position[] destination = destinations.poll();
-
-        final State state = new State(minutes, destination[0]);
-        queue.add(state);
-
-        int result = 0;
+        final State initial = new State(startMinutes, start);
+        queue.add(initial);
+        visited.add(initial);
 
         while (!queue.isEmpty()) {
             final State current = queue.poll();
 
-            if (current.pos.equals(destination[1])) {
-                result += current.minutes;
-                if (destinations.isEmpty()) {
-                    return result;
-                }
-
-                queue.clear();
-
-                destination = destinations.poll();
-                queue.add(new State(0, destination[0]));
-                final List<Blizzard> blizzards = copyBlizzards(blizzardMap.get(current.minutes));
-                blizzardMap.clear();
-                minutes = 0;
-
-                blizzardMap.put(minutes, blizzards);
-                continue;
+            if (current.pos.equals(goal)) {
+                return current.minutes;
             }
 
-            minutes = current.minutes + 1;
-            final List<Blizzard> blizzards;
+            final int nextMinutes = current.minutes + 1;
+            final Set<Position> occupied =
+                    occupiedAt(nextMinutes, initialBlizzards, md.maxDepth, md.maxLength, blizzardCache, occupiedCache);
 
-            if (!blizzardMap.containsKey(minutes)) {
-                blizzards = copyBlizzards(blizzardMap.get(minutes - 1));
-                for (final Blizzard b : blizzards) {
-                    b.move(maxDepth, maxLength);
-                }
-                blizzardMap.put(minutes, blizzards);
-            } else {
-                blizzards = blizzardMap.get(minutes);
-            }
-
-            final List<Position> neighbours = current.pos.neighbours(md);
-
-            List<Position> options = new ArrayList<>();
-            options.addAll(neighbours);
+            final List<Position> options = new ArrayList<>(current.pos.neighbours(md));
             options.add(current.pos);
 
-            options = options.stream()
-                    .filter((pos) -> !occupiedByBlizzard(pos, blizzards))
-                    .toList();
-
-            Set<State> queueSet;
-            for (final Position p : options) {
-                final State s = new State(minutes, p);
-                queueSet = queue.stream().collect(Collectors.toSet());
-                if (!queueSet.contains(s)) {
-                    queue.add(s);
+            for (final Position option : options) {
+                if (!occupied.contains(option)) {
+                    final State next = new State(nextMinutes, option);
+                    if (visited.add(next)) {
+                        queue.add(next);
+                    }
                 }
             }
         }
 
         throw new RuntimeException("No solution!");
+    }
+
+    private static int traverseValley(List<String> data, MapData md, Queue<Position[]> destinations) {
+        final List<Blizzard> initialBlizzards = buildBlizzards(data);
+
+        final Map<Integer, List<Blizzard>> blizzardCache = new HashMap<>();
+        final Map<Integer, Set<Position>> occupiedCache = new HashMap<>();
+        blizzardCache.put(0, initialBlizzards);
+        occupiedCache.put(0, positionsOf(initialBlizzards));
+
+        int minutes = 0;
+        Position[] destination = destinations.poll();
+
+        while (destination != null) {
+            minutes = shortestPath(
+                    destination[0], destination[1], minutes, md, initialBlizzards, blizzardCache, occupiedCache);
+            destination = destinations.poll();
+        }
+
+        return minutes;
     }
 
     public static int findFewestMinutesToReachGoal(List<String> data) {
